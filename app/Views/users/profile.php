@@ -28,7 +28,12 @@
             <i class="fas fa-times"></i>
         </span>
     </div>
-    <?php endif; ?>
+    <?php 
+    // Clear flash message after displaying it
+    unset($_SESSION['flash_message']);
+    unset($_SESSION['flash_type']);
+    endif; 
+    ?>
     
     <!-- Error notification -->
     <?php if (isset($_SESSION['flash_message']) && $_SESSION['flash_type'] === 'error'): ?>
@@ -39,7 +44,12 @@
             <i class="fas fa-times"></i>
         </span>
     </div>
-    <?php endif; ?>
+    <?php 
+    // Clear flash message after displaying it
+    unset($_SESSION['flash_message']);
+    unset($_SESSION['flash_type']);
+    endif; 
+    ?>
 
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <div class="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
@@ -48,7 +58,7 @@
         </div>
         
         <div class="p-6">
-            <form action="profile" method="POST" class="space-y-6">
+            <form action="/profile" method="POST" class="space-y-6">
                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 
                 <div>
