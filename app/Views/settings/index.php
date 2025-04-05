@@ -9,15 +9,12 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body class="bg-gray-100">
 
+<?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
 
-<div class="container mx-auto px-6 py-8">
-    <!-- Navigation back to dashboard -->
-    <div class="mb-6">
-        <a href="/dashboard" class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
-        </a>
-    </div>
+<div class="container mx-auto px-6 py-8 pt-24">
+
 
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Store Settings</h1>
@@ -165,4 +162,6 @@ setTimeout(function() {
         }, 1000);
     }
 }, 5000);
-</script> 
+</script>
+</body>
+</html> 

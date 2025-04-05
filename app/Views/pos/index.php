@@ -11,6 +11,7 @@
 </head>
 
 <div class="flex h-[calc(100vh-4rem)] gap-6">
+    
     <!-- Left Side - Product Selection -->
     <div class="w-2/3 bg-white shadow-sm rounded-lg p-6 overflow-hidden flex flex-col">
         <!-- Search Bar -->

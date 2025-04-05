@@ -9,9 +9,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body class="bg-gray-100">
 
+<?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-6 py-8 pt-24">
     <h1 class="text-2xl font-semibold text-gray-900 mb-6">Reports Dashboard</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -29,7 +31,7 @@
                 </div>
                 <div class="mt-6">
                     <a href="/reports/sales" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                        View Report
+                        <i class="fas fa-external-link-alt mr-2"></i> View Report
                     </a>
                 </div>
             </div>
@@ -58,7 +60,7 @@
                 </div>
                 <div class="mt-6">
                     <a href="/reports/inventory" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
-                        View Report
+                        <i class="fas fa-external-link-alt mr-2"></i> View Report
                     </a>
                 </div>
             </div>
@@ -87,7 +89,7 @@
                 </div>
                 <div class="mt-6">
                     <a href="/reports/financial" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700">
-                        View Report
+                        <i class="fas fa-external-link-alt mr-2"></i> View Report
                     </a>
                 </div>
             </div>
@@ -137,3 +139,5 @@
         </div>
     </div>
 </div>
+</body>
+</html>

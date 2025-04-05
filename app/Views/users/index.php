@@ -9,8 +9,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body class="bg-gray-100">
 
-<div class="container mx-auto px-6 py-8">
+<?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
+
+<div class="container mx-auto px-6 py-8 pt-24">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">User Management</h1>
         <div class="space-x-2">
@@ -22,9 +25,22 @@
 
     <!-- Flash Messages -->
     <?php if (isset($_SESSION['flash_message'])): ?>
-        <div class="mb-4 px-4 py-3 rounded-md <?php echo $_SESSION['flash_type'] === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'; ?>">
-            <?php echo $_SESSION['flash_message']; ?>
+        <div class="mb-4 px-4 py-3 rounded-md <?php echo $_SESSION['flash_type'] === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'; ?>" id="flashMessage">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="<?php echo $_SESSION['flash_type'] === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'; ?> mr-2"></i>
+                    <span><?php echo $_SESSION['flash_message']; ?></span>
+                </div>
+                <button type="button" onclick="document.getElementById('flashMessage').style.display='none';" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
+        <?php 
+        // Clear flash message after displaying
+        unset($_SESSION['flash_message']);
+        unset($_SESSION['flash_type']);
+        ?>
     <?php endif; ?>
 
     <!-- Users Table -->
@@ -86,4 +102,20 @@
             </table>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+// Auto-hide flash message after 5 seconds
+setTimeout(function() {
+    const flashMessage = document.getElementById('flashMessage');
+    if (flashMessage) {
+        flashMessage.style.opacity = '0';
+        flashMessage.style.transition = 'opacity 1s';
+        setTimeout(function() {
+            flashMessage.style.display = 'none';
+        }, 1000);
+    }
+}, 5000);
+</script>
+</body>
+</html> 
