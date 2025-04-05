@@ -9,8 +9,38 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body>
 
-<div class="max-w-3xl mx-auto">
+<div class="max-w-3xl mx-auto py-8">
+    <!-- Navigation back to dashboard -->
+    <div class="mb-6">
+        <a href="/dashboard" class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Success notification -->
+    <?php if (isset($_SESSION['flash_message']) && $_SESSION['flash_type'] === 'success'): ?>
+    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center" role="alert" id="successAlert">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span class="block sm:inline"><?php echo $_SESSION['flash_message']; ?></span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="document.getElementById('successAlert').style.display='none';">
+            <i class="fas fa-times"></i>
+        </span>
+    </div>
+    <?php endif; ?>
+    
+    <!-- Error notification -->
+    <?php if (isset($_SESSION['flash_message']) && $_SESSION['flash_type'] === 'error'): ?>
+    <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center" role="alert" id="errorAlert">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        <span class="block sm:inline"><?php echo $_SESSION['flash_message']; ?></span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="document.getElementById('errorAlert').style.display='none';">
+            <i class="fas fa-times"></i>
+        </span>
+    </div>
+    <?php endif; ?>
+
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <div class="p-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
             <h2 class="text-2xl font-bold">My Profile</h2>
@@ -72,7 +102,7 @@
                 </div>
                 
                 <div class="flex justify-end">
-                    <a href="dashboard" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-3">
+                    <a href="/dashboard" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 mr-3">
                         Cancel
                     </a>
                     <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -133,4 +163,23 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+// Auto hide alerts after 5 seconds
+setTimeout(function() {
+    const alerts = document.querySelectorAll('#successAlert, #errorAlert');
+    alerts.forEach(alert => {
+        if(alert) {
+            alert.style.opacity = '0';
+            alert.style.transition = 'opacity 1s';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 1000);
+        }
+    });
+}, 5000);
+</script>
+
+</body>
+</html> 
