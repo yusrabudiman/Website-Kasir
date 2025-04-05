@@ -34,6 +34,7 @@ class SettingsController extends Controller {
 
         $this->validateCSRF();
         
+        // Collect form data
         $data = [
             'store_name' => filter_input(INPUT_POST, 'store_name', FILTER_SANITIZE_STRING),
             'store_address' => filter_input(INPUT_POST, 'store_address', FILTER_SANITIZE_STRING),
@@ -65,7 +66,7 @@ class SettingsController extends Controller {
         }
 
         try {
-            $this->settingsModel->update($data);
+            $this->settingsModel->save($data);
             $this->logActivity('Store settings updated');
             
             $_SESSION['flash_message'] = 'Settings updated successfully';

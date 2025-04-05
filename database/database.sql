@@ -3,46 +3,56 @@ CREATE DATABASE IF NOT EXISTS pos_db;
 USE pos_db;
 
 -- Users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE,
     role ENUM('admin', 'cashier') NOT NULL,
+    last_login DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Store settings
-CREATE TABLE store_settings (
-    id VARCHAR(36) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS store_settings (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     store_name VARCHAR(100) NOT NULL,
     address TEXT,
     phone VARCHAR(20),
+    email VARCHAR(100),
     tax_percentage DECIMAL(5,2) DEFAULT 11.00,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    store_logo VARCHAR(255),
+    currency_symbol VARCHAR(10) DEFAULT 'Rp',
+    low_stock_threshold INT DEFAULT 10,
+    receipt_footer TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Products
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id VARCHAR(36) PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(12,2) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
+    min_stock INT DEFAULT 10,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Stock mutations
-CREATE TABLE stock_mutations (
+CREATE TABLE IF NOT EXISTS stock_mutations (
     id VARCHAR(36) PRIMARY KEY,
     product_id VARCHAR(36) NOT NULL,
-    type ENUM('in', 'out') NOT NULL,
+    type ENUM('purchase', 'sale', 'adjustment', 'return') NOT NULL,
     quantity INT NOT NULL,
+    before_stock INT NOT NULL,
+    after_stock INT NOT NULL,
+    reference_id VARCHAR(36),
     notes TEXT,
     created_by VARCHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -51,7 +61,7 @@ CREATE TABLE stock_mutations (
 );
 
 -- Orders
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id VARCHAR(36) PRIMARY KEY,
     invoice_number VARCHAR(20) UNIQUE NOT NULL,
     total_amount DECIMAL(12,2) NOT NULL,
@@ -65,7 +75,7 @@ CREATE TABLE orders (
 );
 
 -- Order items
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
     id VARCHAR(36) PRIMARY KEY,
     order_id VARCHAR(36) NOT NULL,
     product_id VARCHAR(36) NOT NULL,
@@ -77,42 +87,45 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- Audit trail
-CREATE TABLE audit_trail (
+-- Audit logs
+CREATE TABLE IF NOT EXISTS audit_logs (
     id VARCHAR(36) PRIMARY KEY,
-    user_id VARCHAR(36) NOT NULL,
+    user_id VARCHAR(36),
+    module VARCHAR(50) NOT NULL,
     action VARCHAR(50) NOT NULL,
-    table_name VARCHAR(50) NOT NULL,
-    record_id VARCHAR(36) NOT NULL,
-    old_values JSON,
-    new_values JSON,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
+    details TEXT,
+    ip_address VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS `audit_logs` (
-  `id` varchar(36) NOT NULL,
-  `user_id` varchar(36) DEFAULT NULL,
-  `module` varchar(50) NOT NULL,
-  `action` varchar(50) NOT NULL,
-  `details` text,
-  `ip_address` varchar(45) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `audit_logs_user_id_index` (`user_id`),
-  KEY `audit_logs_module_index` (`module`),
-  KEY `audit_logs_action_index` (`action`),
-  KEY `audit_logs_created_at_index` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
-
--- Insert default admin user (password: admin123)
+-- Insert default admin user (password: password)
 INSERT INTO users (id, username, password, name, email, role) VALUES (
-    UUID(),
-    'admin',
+    UUID(), 
+    'admin', 
     '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     'Administrator',
     'admin@example.com',
     'admin'
 );
+
+-- Insert default store settings
+INSERT INTO store_settings (
+    store_name, 
+    address, 
+    phone, 
+    email, 
+    tax_percentage, 
+    currency_symbol, 
+    low_stock_threshold, 
+    receipt_footer
+) VALUES (
+    'POS System',
+    'Store Address',
+    '-',
+    'store@example.com',
+    11.00,
+    'Rp',
+    10,
+    'Thank you for your purchase! Please come again.'
+); 

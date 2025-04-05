@@ -12,15 +12,35 @@
 
 
 <div class="container mx-auto px-6 py-8">
+    <!-- Navigation back to dashboard -->
+    <div class="mb-6">
+        <a href="/dashboard" class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </a>
+    </div>
+
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Store Settings</h1>
     </div>
 
     <!-- Flash Messages -->
     <?php if (isset($_SESSION['flash_message'])): ?>
-        <div class="mb-4 px-4 py-3 rounded-md <?php echo $_SESSION['flash_type'] === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'; ?>">
-            <?php echo $_SESSION['flash_message']; ?>
+        <div class="mb-4 px-4 py-3 rounded-md <?php echo $_SESSION['flash_type'] === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'; ?>" id="flashMessage">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="<?php echo $_SESSION['flash_type'] === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'; ?> mr-2"></i>
+                    <span><?php echo $_SESSION['flash_message']; ?></span>
+                </div>
+                <button type="button" onclick="document.getElementById('flashMessage').style.display='none';" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
+        <?php 
+        // Clear flash message after displaying
+        unset($_SESSION['flash_message']);
+        unset($_SESSION['flash_type']);
+        ?>
     <?php endif; ?>
 
     <div class="bg-white shadow-sm rounded-lg overflow-hidden">
@@ -120,12 +140,29 @@
                 </div>
             </div>
 
-            <div class="pt-4">
+            <div class="pt-4 flex justify-between">
+                <a href="/dashboard" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                </a>
                 <button type="submit"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Save Settings
+                        class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-save mr-2"></i> Save Settings
                 </button>
             </div>
         </form>
     </div>
-</div> 
+</div>
+
+<script>
+// Auto-hide flash message after 5 seconds
+setTimeout(function() {
+    const flashMessage = document.getElementById('flashMessage');
+    if (flashMessage) {
+        flashMessage.style.opacity = '0';
+        flashMessage.style.transition = 'opacity 1s';
+        setTimeout(function() {
+            flashMessage.style.display = 'none';
+        }, 1000);
+    }
+}, 5000);
+</script> 
