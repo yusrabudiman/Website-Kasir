@@ -68,6 +68,155 @@ class Order {
         return $this->db->resultSet();
     }
 
+    public function getSalesReport($startDate, $endDate, $groupBy = 'daily') {
+        // Define the GROUP BY clause based on the grouping parameter
+        switch ($groupBy) {
+            case 'weekly':
+                $dateFormat = "YEARWEEK(o.created_at, 1)";
+                $selectDate = "CONCAT('Week ', WEEK(o.created_at, 1), ', ', YEAR(o.created_at)) as date";
+                break;
+            case 'monthly':
+                $dateFormat = "DATE_FORMAT(o.created_at, '%Y-%m')";
+                $selectDate = "DATE_FORMAT(o.created_at, '%M %Y') as date";
+                break;
+            default: // daily
+                $dateFormat = "DATE(o.created_at)";
+                $selectDate = "DATE(o.created_at) as date";
+                break;
+        }
+
+        $this->db->query("
+            SELECT 
+                {$selectDate},
+                COUNT(DISTINCT o.id) as orders,
+                COALESCE(SUM(oi.quantity), 0) as items_sold,
+                COALESCE(SUM(o.final_amount), 0) as total_sales
+            FROM orders o
+            LEFT JOIN order_items oi ON o.id = oi.order_id
+            WHERE DATE(o.created_at) BETWEEN :start_date AND :end_date
+            GROUP BY {$dateFormat}
+            ORDER BY 
+                CASE 
+                    WHEN '{$groupBy}' = 'weekly' THEN YEARWEEK(o.created_at, 1)
+                    WHEN '{$groupBy}' = 'monthly' THEN DATE_FORMAT(o.created_at, '%Y-%m')
+                    ELSE DATE(o.created_at)
+                END ASC
+        ");
+        
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        return $this->db->resultSet();
+    }
+
+    public function getTopProducts($startDate, $endDate, $limit = 10) {
+        $this->db->query("
+            SELECT 
+                p.id,
+                p.name,
+                p.code,
+                SUM(oi.quantity) as quantity_sold,
+                SUM(oi.subtotal) as total_sales
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE DATE(o.created_at) BETWEEN :start_date AND :end_date
+            GROUP BY p.id
+            ORDER BY quantity_sold DESC
+            LIMIT :limit
+        ");
+        
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        $this->db->bind(':limit', $limit);
+        
+        return $this->db->resultSet();
+    }
+
+    public function getSalesSummary($startDate, $endDate) {
+        $this->db->query("
+            SELECT 
+                COUNT(DISTINCT o.id) as total_orders,
+                COALESCE(SUM(o.final_amount), 0) as total_sales,
+                COALESCE(SUM(oi.quantity), 0) as total_items,
+                COALESCE(SUM(o.final_amount) / COUNT(DISTINCT o.id), 0) as average_order
+            FROM orders o
+            LEFT JOIN order_items oi ON o.id = oi.order_id
+            WHERE DATE(o.created_at) BETWEEN :start_date AND :end_date
+        ");
+        
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        return $this->db->single();
+    }
+
+    public function getFinancialReport($startDate, $endDate, $groupBy = 'daily') {
+        // Define the GROUP BY clause based on the grouping parameter
+        switch ($groupBy) {
+            case 'weekly':
+                $dateFormat = "YEARWEEK(created_at, 1)";
+                $selectDate = "CONCAT('Week ', WEEK(created_at, 1), ', ', YEAR(created_at)) as date";
+                break;
+            case 'monthly':
+                $dateFormat = "DATE_FORMAT(created_at, '%Y-%m')";
+                $selectDate = "DATE_FORMAT(created_at, '%M %Y') as date";
+                break;
+            default: // daily
+                $dateFormat = "DATE(created_at)";
+                $selectDate = "DATE(created_at) as date";
+                break;
+        }
+
+        $this->db->query("
+            SELECT 
+                {$selectDate},
+                COUNT(*) as orders,
+                COALESCE(SUM(total_amount), 0) as gross_sales,
+                COALESCE(SUM(tax_amount), 0) as tax_amount,
+                COALESCE(SUM(final_amount), 0) as net_sales
+            FROM orders
+            WHERE DATE(created_at) BETWEEN :start_date AND :end_date
+            GROUP BY {$dateFormat}
+            ORDER BY 
+                CASE 
+                    WHEN '{$groupBy}' = 'weekly' THEN YEARWEEK(created_at, 1)
+                    WHEN '{$groupBy}' = 'monthly' THEN DATE_FORMAT(created_at, '%Y-%m')
+                    ELSE DATE(created_at)
+                END ASC
+        ");
+        
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        return $this->db->resultSet();
+    }
+
+    public function getFinancialSummary($startDate, $endDate) {
+        // Hitung selisih hari terlebih dahulu untuk menghindari binding parameter yang sama berkali-kali
+        $this->db->query("SELECT DATEDIFF(:end_date, :start_date) as date_diff");
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        $dateDiff = $this->db->single()->date_diff;
+        
+        // Gunakan nilai yang sudah dihitung
+        $this->db->query("
+            SELECT 
+                COALESCE(SUM(total_amount), 0) as gross_sales,
+                COALESCE(SUM(tax_amount), 0) as tax_amount,
+                COALESCE(SUM(final_amount), 0) as net_sales,
+                COALESCE(SUM(final_amount) / :date_diff, 0) as average_daily
+            FROM orders
+            WHERE DATE(created_at) BETWEEN :start_date AND :end_date
+        ");
+        
+        $this->db->bind(':date_diff', $dateDiff > 0 ? $dateDiff : 1); // Hindari division by zero
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        return $this->db->single();
+    }
+
     public function create($data) {
         try {
             $this->db->beginTransaction();

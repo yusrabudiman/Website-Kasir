@@ -9,9 +9,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body class="bg-gray-100">
 
+<?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-6 py-8 pt-24">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Inventory Report</h1>
         <div class="space-x-2">
@@ -184,13 +186,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-});
 
-// Form submission
-document.getElementById('filterForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const params = new URLSearchParams(new FormData(this));
-    window.location.href = `/reports/inventory?${params.toString()}`;
+    // Form submission
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const params = new URLSearchParams(new FormData(this));
+        window.location.href = `/reports/inventory?${params.toString()}`;
+    });
 });
 
 // Export function
@@ -201,3 +203,5 @@ function exportReport() {
     window.location.href = `/reports/inventory?${params.toString()}`;
 }
 </script>
+</body>
+</html>

@@ -9,9 +9,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+<body class="bg-gray-100">
 
+<?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-6 py-8 pt-24">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Financial Report</h1>
         <div class="space-x-2">
@@ -205,20 +207,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-});
 
-// Form submission
-document.getElementById('filterForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const params = new URLSearchParams(new FormData(this));
-    window.location.href = `/reports/financial?${params.toString()}`;
+    // Form submission
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const groupBy = document.getElementById('group_by').value;
+        
+        window.location.href = `/reports/financial?start_date=${startDate}&end_date=${endDate}&group_by=${groupBy}`;
+    });
 });
 
 // Export function
 function exportReport() {
-    const form = document.getElementById('filterForm');
-    const params = new URLSearchParams(new FormData(form));
-    params.append('export', '1');
-    window.location.href = `/reports/financial?${params.toString()}`;
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    const groupBy = document.getElementById('group_by').value;
+    
+    window.location.href = `/reports/financial?start_date=${startDate}&end_date=${endDate}&group_by=${groupBy}&export=1`;
 }
 </script>
+</body>
+</html>
