@@ -129,11 +129,19 @@
                 <h2 class="text-lg font-medium mb-4">Receipt Settings</h2>
                 
                 <!-- Receipt Footer -->
-                <div>
+                <div class="mb-4">
                     <label for="receipt_footer" class="block text-sm font-medium text-gray-700">Receipt Footer Text</label>
                     <textarea id="receipt_footer" name="receipt_footer" rows="3"
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"><?php echo htmlspecialchars($settings->receipt_footer ?? 'Thank you for your purchase! Please come again.'); ?></textarea>
                     <p class="mt-1 text-sm text-gray-500">This text will appear at the bottom of customer receipts</p>
+                </div>
+
+                <!-- Thank You Message -->
+                <div>
+                    <label for="thank_you_message" class="block text-sm font-medium text-gray-700">Thank You Message</label>
+                    <textarea id="thank_you_message" name="thank_you_message" rows="3"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"><?php echo htmlspecialchars($settings->thank_you_message ?? 'Terima kasih telah berbelanja di toko kami. Kami menghargai kepercayaan Anda dan berharap dapat melayani Anda kembali.'); ?></textarea>
+                    <p class="mt-1 text-sm text-gray-500">Pesan ucapan terima kasih yang akan ditampilkan di struk pembayaran</p>
                 </div>
             </div>
 
@@ -148,6 +156,184 @@
             </div>
         </form>
     </div>
+
+    <!-- History Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Recent Settings Changes</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Module</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <?php 
+                    $count = 0;
+                    foreach ($history as $record): 
+                        if ($count >= 3) break;
+                        $count++;
+                    ?>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <?php echo date('Y-m-d H:i:s', strtotime($record->created_at)); ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <?php echo htmlspecialchars($record->user_name ?? $record->username ?? 'System'); ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            Settings
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Store settings updated
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <?php echo htmlspecialchars($record->ip_address ?? '::1'); ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button onclick="showDetails(<?php echo htmlspecialchars(json_encode($record->details)); ?>)" 
+                                    class="text-indigo-600 hover:text-indigo-900">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Details -->
+    <div id="detailsModal" class="fixed hidden inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Change Details</h3>
+                <div id="detailsContent" class="mt-2 px-7 py-3 text-sm text-gray-500 space-y-2">
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function showDetails(details) {
+        const modal = document.getElementById('detailsModal');
+        const content = document.getElementById('detailsContent');
+        
+        if (details) {
+            const changes = details.split('; ');
+            let html = '';
+            changes.forEach(change => {
+                // Extract old and new values
+                const match = change.match(/Updated (.*?) from (.*?) to (.*)/);
+                if (match) {
+                    const [_, field, oldValue, newValue] = match;
+                    html += `
+                        <div class="mb-4">
+                            <div class="flex items-start">
+                                <span class="text-indigo-600 mr-2">•</span>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">${field}</div>
+                                    <div class="mt-1 grid grid-cols-2 gap-2">
+                                        <div class="bg-gray-50 p-2 rounded">
+                                            <div class="text-xs text-gray-500">Previous Value</div>
+                                            <div class="text-gray-700">${oldValue}</div>
+                                        </div>
+                                        <div class="bg-green-50 p-2 rounded">
+                                            <div class="text-xs text-green-500">New Value</div>
+                                            <div class="text-green-700">${newValue}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-500">
+                                        ${getChangeImpact(field)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (change.includes('Added')) {
+                    const [_, field, value] = change.match(/Added (.*?): (.*)/);
+                    html += `
+                        <div class="mb-4">
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">+</span>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">${field}</div>
+                                    <div class="mt-1 bg-green-50 p-2 rounded">
+                                        <div class="text-green-700">${value}</div>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-500">
+                                        ${getChangeImpact(field)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (change.includes('Removed')) {
+                    const [_, field, value] = change.match(/Removed (.*?): (.*)/);
+                    html += `
+                        <div class="mb-4">
+                            <div class="flex items-start">
+                                <span class="text-red-600 mr-2">-</span>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">${field}</div>
+                                    <div class="mt-1 bg-red-50 p-2 rounded">
+                                        <div class="text-red-700">${value}</div>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-500">
+                                        ${getChangeImpact(field)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            content.innerHTML = html;
+        } else {
+            content.innerHTML = '<p>No details available</p>';
+        }
+        
+        modal.classList.remove('hidden');
+    }
+
+    function getChangeImpact(field) {
+        const impacts = {
+            'Store Name': 'Perubahan ini akan mempengaruhi tampilan di header aplikasi dan struk pembayaran',
+            'Store Address': 'Alamat toko akan ditampilkan di struk pembayaran dan informasi kontak',
+            'Phone Number': 'Nomor telepon akan ditampilkan di struk pembayaran dan informasi kontak',
+            'Email Address': 'Email akan digunakan untuk notifikasi dan informasi kontak',
+            'Tax Rate': 'Perubahan persentase pajak akan mempengaruhi perhitungan pajak di setiap transaksi',
+            'Service Charge': 'Perubahan persentase service charge akan mempengaruhi perhitungan biaya layanan di setiap transaksi',
+            'Printer Name': 'Nama printer akan digunakan untuk mencetak struk pembayaran',
+            'Printer Type': 'Tipe printer menentukan format cetak struk pembayaran',
+            'Thank You Message': 'Pesan terima kasih akan ditampilkan di struk pembayaran',
+            'store logo': 'Logo toko akan ditampilkan di header aplikasi dan struk pembayaran'
+        };
+        return impacts[field] || 'Perubahan ini akan mempengaruhi pengaturan toko';
+    }
+
+    function closeModal() {
+        document.getElementById('detailsModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('detailsModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+    </script>
 </div>
 
 <script>

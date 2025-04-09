@@ -16,11 +16,13 @@ class SettingsController extends Controller {
     public function index() {
         $this->checkAuth(['admin']);
         
-        $settings = $this->settingsModel->get();
+        $settings = $this->settingsModel->getSettings();
+        $history = $this->settingsModel->getHistory();
         
         return $this->view('settings/index', [
             'title' => 'Store Settings',
             'settings' => $settings,
+            'history' => $history,
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
@@ -37,13 +39,14 @@ class SettingsController extends Controller {
         // Collect form data
         $data = [
             'store_name' => filter_input(INPUT_POST, 'store_name', FILTER_SANITIZE_STRING),
-            'store_address' => filter_input(INPUT_POST, 'store_address', FILTER_SANITIZE_STRING),
-            'store_phone' => filter_input(INPUT_POST, 'store_phone', FILTER_SANITIZE_STRING),
-            'store_email' => filter_input(INPUT_POST, 'store_email', FILTER_SANITIZE_EMAIL),
-            'tax_percentage' => filter_input(INPUT_POST, 'tax_percentage', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
-            'currency_symbol' => filter_input(INPUT_POST, 'currency_symbol', FILTER_SANITIZE_STRING),
-            'receipt_footer' => filter_input(INPUT_POST, 'receipt_footer', FILTER_SANITIZE_STRING),
-            'low_stock_threshold' => filter_input(INPUT_POST, 'low_stock_threshold', FILTER_SANITIZE_NUMBER_INT)
+            'address' => filter_input(INPUT_POST, 'store_address', FILTER_SANITIZE_STRING),
+            'phone' => filter_input(INPUT_POST, 'store_phone', FILTER_SANITIZE_STRING),
+            'email' => filter_input(INPUT_POST, 'store_email', FILTER_SANITIZE_EMAIL),
+            'tax_rate' => filter_input(INPUT_POST, 'tax_rate', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
+            'service_charge' => filter_input(INPUT_POST, 'service_charge', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
+            'printer_name' => filter_input(INPUT_POST, 'printer_name', FILTER_SANITIZE_STRING),
+            'printer_type' => filter_input(INPUT_POST, 'printer_type', FILTER_SANITIZE_STRING),
+            'thank_you_message' => filter_input(INPUT_POST, 'thank_you_message', FILTER_SANITIZE_STRING)
         ];
 
         // Validate required fields
@@ -54,19 +57,23 @@ class SettingsController extends Controller {
         }
 
         // Process logo if uploaded
-        if (isset($_FILES['store_logo']) && $_FILES['store_logo']['error'] === UPLOAD_ERR_OK) {
-            $logoUpload = $this->uploadLogo($_FILES['store_logo']);
-            if ($logoUpload['success']) {
-                $data['store_logo'] = $logoUpload['filename'];
-            } else {
-                $_SESSION['flash_message'] = 'Error uploading logo: ' . $logoUpload['message'];
-                $_SESSION['flash_type'] = 'error';
-                return $this->redirect('/settings');
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../public/uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $fileName = time() . '_' . basename($_FILES['logo']['name']);
+            $targetPath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($_FILES['logo']['tmp_name'], $targetPath)) {
+                $data['logo'] = '/uploads/' . $fileName;
             }
         }
 
         try {
-            $this->settingsModel->save($data);
+            $userId = $_SESSION['user_id'];
+            $this->settingsModel->save($data, $userId);
             $this->logActivity('Store settings updated');
             
             $_SESSION['flash_message'] = 'Settings updated successfully';

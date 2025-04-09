@@ -3,6 +3,8 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\AuditLog;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class AuditController extends Controller {
     private $auditModel;
@@ -22,6 +24,9 @@ class AuditController extends Controller {
         $actionFilter = $_GET['action'] ?? null;
         
         $logs = $this->auditModel->getLogs($startDate, $endDate, $userFilter, $moduleFilter, $actionFilter);
+        // Limit logs to 3 rows
+        $logs = array_slice($logs, 0, 3);
+        
         $users = $this->auditModel->getUsers();
         $modules = $this->auditModel->getModules();
         $actions = $this->auditModel->getActions();
@@ -68,29 +73,49 @@ class AuditController extends Controller {
         
         $logs = $this->auditModel->getLogs($startDate, $endDate, $userFilter, $moduleFilter, $actionFilter);
         
+        // Create new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set headers
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Date & Time');
+        $sheet->setCellValue('C1', 'User');
+        $sheet->setCellValue('D1', 'Module');
+        $sheet->setCellValue('E1', 'Action');
+        $sheet->setCellValue('F1', 'IP Address');
+        $sheet->setCellValue('G1', 'Details');
+        
+        // Style the header
+        $sheet->getStyle('A1:G1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:G1')->getAlignment()->setHorizontal('center');
+        
+        // Add data
+        $row = 2;
+        foreach ($logs as $log) {
+            $sheet->setCellValue('A' . $row, $log->id);
+            $sheet->setCellValue('B' . $row, $log->created_at);
+            $sheet->setCellValue('C' . $row, $log->user_name);
+            $sheet->setCellValue('D' . $row, $log->module);
+            $sheet->setCellValue('E' . $row, $log->action);
+            $sheet->setCellValue('F' . $row, $log->ip_address);
+            $sheet->setCellValue('G' . $row, $log->details);
+            $row++;
+        }
+        
+        // Auto-size columns
+        foreach(range('A','G') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+        
         // Set headers for Excel download
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename="audit_log.xls"');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="audit_log.xlsx"');
         header('Cache-Control: max-age=0');
         
-        // Output Excel content
-        echo "ID\tDate & Time\tUser\tModule\tAction\tIP Address\tDetails\n";
-        
-        foreach ($logs as $log) {
-            // Clean up details for export
-            $details = str_replace("\n", " ", $log->details);
-            $details = str_replace("\t", " ", $details);
-            
-            echo implode("\t", [
-                $log->id,
-                $log->created_at,
-                $log->user_name,
-                $log->module,
-                $log->action,
-                $log->ip_address,
-                $details
-            ]) . "\n";
-        }
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
         exit;
     }
 
@@ -126,4 +151,4 @@ class AuditController extends Controller {
         
         return $this->redirect('/audit');
     }
-} 
+}

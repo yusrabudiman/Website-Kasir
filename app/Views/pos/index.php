@@ -10,6 +10,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
+<!-- Back to Dashboard Button -->
+<div class="p-4 flex justify-end">
+    <a href="/dashboard" class="inline-flex items-center text-gray-700 hover:text-indigo-600">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to Dashboard
+    </a>
+</div>
+
 <div class="flex h-[calc(100vh-4rem)] gap-6">
     
     <!-- Left Side - Product Selection -->

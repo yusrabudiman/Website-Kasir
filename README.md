@@ -99,6 +99,19 @@ composer require vendor/package
 npm install package-name --save
 ```
 
+## Requirements
+
+### Composer Packages
+To install required packages, run the following commands:
+
+```bash
+composer require phpoffice/phpspreadsheet
+```
+
+This package is needed for:
+- Modern Excel (XLSX) export in Audit Trail feature
+- Spreadsheet generation and manipulation
+
 ## Troubleshooting
 
 ### Common issues with vendor directory

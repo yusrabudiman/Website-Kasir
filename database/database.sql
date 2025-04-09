@@ -22,14 +22,19 @@ CREATE TABLE IF NOT EXISTS store_settings (
     address TEXT,
     phone VARCHAR(20),
     email VARCHAR(100),
-    tax_percentage DECIMAL(5,2) DEFAULT 11.00,
-    store_logo VARCHAR(255),
-    currency_symbol VARCHAR(10) DEFAULT 'Rp',
-    low_stock_threshold INT DEFAULT 10,
-    receipt_footer TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+    logo VARCHAR(255),
+    tax_rate DECIMAL(5,2) DEFAULT 0,
+    service_charge DECIMAL(5,2) DEFAULT 0,
+    printer_name VARCHAR(100),
+    printer_type ENUM('thermal', 'dot_matrix') DEFAULT 'thermal',
+    thank_you_message TEXT DEFAULT 'Terima kasih telah berbelanja di toko kami. Kami menghargai kepercayaan Anda dan berharap dapat melayani Anda kembali.',
+    created_by VARCHAR(36),
+    updated_by VARCHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+); 
 
 -- Products
 CREATE TABLE IF NOT EXISTS products (
@@ -115,17 +120,25 @@ INSERT INTO store_settings (
     address, 
     phone, 
     email, 
-    tax_percentage, 
-    currency_symbol, 
-    low_stock_threshold, 
-    receipt_footer
+    logo,
+    tax_rate, 
+    service_charge, 
+    printer_name, 
+    printer_type,
+    thank_you_message,
+    created_by,
+    updated_by
 ) VALUES (
     'POS System',
     'Store Address',
-    '-',
+    '081234567890',
     'store@example.com',
+    '/uploads/default-logo.png',
     11.00,
-    'Rp',
-    10,
-    'Thank you for your purchase! Please come again.'
+    5.00,
+    'Default Printer',
+    'thermal',
+    'Terima kasih telah berbelanja di toko kami. Kami menghargai kepercayaan Anda dan berharap dapat melayani Anda kembali.',
+    (SELECT id FROM users WHERE username = 'admin'),
+    (SELECT id FROM users WHERE username = 'admin')
 ); 

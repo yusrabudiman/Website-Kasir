@@ -19,11 +19,14 @@ class POSController extends Controller {
     }
 
     public function index() {
-        $settings = $this->settingModel->get();
+        $this->checkAuth(['cashier', 'admin']);
+        
+        // Perbaiki cara mengambil tax_rate
+        $taxRate = $this->settingModel->getTaxRate() ?? 0;
+        
         return $this->view('pos/index', [
             'title' => 'Point of Sale',
-            'tax_rate' => $settings->tax_percentage ?? 11,
-            'store_name' => $settings->store_name ?? 'POS System',
+            'tax_rate' => $taxRate,
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
