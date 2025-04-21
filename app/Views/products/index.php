@@ -26,11 +26,15 @@
             <!-- Search Bar -->
             <div class="mb-6">
                 <div class="relative">
+                    <input type="hidden" id="csrf_token" value="<?php echo $csrf_token; ?>">
                     <input type="text" id="searchProduct" 
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Search products...">
+                        placeholder="Search products by name or code...">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <div id="searchLoading" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
                     </div>
                 </div>
             </div>
@@ -117,28 +121,82 @@ const searchProduct = document.getElementById('searchProduct');
 const productsTableBody = document.getElementById('productsTableBody');
 const deleteModal = document.getElementById('deleteModal');
 const deleteForm = document.getElementById('deleteForm');
+const searchLoading = document.getElementById('searchLoading');
 
-searchProduct.addEventListener('input', debounce(async (e) => {
-    const search = e.target.value;
+// Function to handle search
+async function handleSearch(search) {
+    // Show loading indicator
+    searchLoading.classList.remove('hidden');
+    productsTableBody.classList.add('opacity-50');
+    
     try {
+        const csrf_token = document.getElementById('csrf_token').value;
         const response = await fetch('/products/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
             },
-            body: `search=${encodeURIComponent(search)}&csrf_token=<?php echo $csrf_token; ?>`
+            body: `search=${encodeURIComponent(search)}&csrf_token=${encodeURIComponent(csrf_token)}`
         });
         
-        const data = await response.json();
-        updateProductsTable(data.products);
+        // Debug: Log raw response
+        const responseText = await response.text();
+        console.log('Raw server response:', responseText);
+        
+        try {
+            const data = JSON.parse(responseText);
+            if (data.success) {
+                updateProductsTable(data.products);
+            } else {
+                throw new Error(data.error || 'Error searching products');
+            }
+        } catch (jsonError) {
+            console.error('JSON Parse Error:', jsonError);
+            throw new Error('Server returned invalid JSON response. Check server logs for details.');
+        }
     } catch (error) {
         console.error('Error searching products:', error);
+        productsTableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-red-500">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    ${error.message}
+                </td>
+            </tr>
+        `;
+    } finally {
+        // Hide loading indicator
+        searchLoading.classList.add('hidden');
+        productsTableBody.classList.remove('opacity-50');
     }
+}
+
+// Add event listener for search input
+searchProduct.addEventListener('input', debounce((e) => {
+    const search = e.target.value.trim();
+    handleSearch(search);
 }, 300));
 
+// Initial search to load all products
+handleSearch('');
+
 function updateProductsTable(products) {
+    if (!products || products.length === 0) {
+        productsTableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                    <i class="fas fa-search text-4xl mb-2 text-gray-300"></i>
+                    <div class="text-lg">No products found</div>
+                    <div class="text-sm mt-2">Try a different search term</div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
     productsTableBody.innerHTML = products.map(product => `
-        <tr>
+        <tr class="transition-all duration-200 hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 ${escapeHtml(product.code)}
             </td>

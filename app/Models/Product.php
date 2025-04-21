@@ -162,34 +162,36 @@ class Product {
         $this->db->query("
             SELECT id, code, name, price, stock 
             FROM products 
-            WHERE (LOWER(name) LIKE :search OR LOWER(code) LIKE :search)
+            WHERE (LOWER(name) LIKE :search_name OR LOWER(code) LIKE :search_code)
             AND stock > 0
             ORDER BY name ASC
         ");
         
-        $searchTerm = "%{$search}%";
-        $this->db->bind(':search', $searchTerm);
-        
-        $results = $this->db->resultSet();
+        $searchTerm = "%" . strtolower($search) . "%";
+        $this->db->bind(':search_name', $searchTerm);
+        $this->db->bind(':search_code', $searchTerm);
         
         // Debug log
         error_log("Search term: " . $search);
-        error_log("Search SQL: " . $this->db->getQuery());
-        error_log("Number of results: " . count($results));
         
-        return $results;
+        return $this->db->resultSet();
     }
 
     public function search($search) {
         $this->db->query("
             SELECT id, code, name, description, price, stock 
             FROM products 
-            WHERE LOWER(name) LIKE :search OR LOWER(code) LIKE :search
+            WHERE LOWER(name) LIKE :search_name 
+               OR LOWER(code) LIKE :search_code
             ORDER BY name ASC
         ");
         
-        $searchTerm = "%{$search}%";
-        $this->db->bind(':search', $searchTerm);
+        $searchTerm = "%" . strtolower($search) . "%";
+        $this->db->bind(':search_name', $searchTerm);
+        $this->db->bind(':search_code', $searchTerm);
+        
+        // Debug log
+        error_log("Search term: " . $search);
         
         return $this->db->resultSet();
     }

@@ -40,9 +40,12 @@ class Controller {
     }
 
     protected function response($data, $statusCode = 200) {
+        // Clear any previous output
+        if (ob_get_length()) ob_clean();
+        
         http_response_code($statusCode);
         header('Content-Type: application/json');
-        echo json_encode($data);
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
         exit();
     }
 

@@ -16,7 +16,8 @@ class ProductController extends Controller {
         $products = $this->productModel->getAll();
         return $this->view('products/index', [
             'title' => 'Products',
-            'products' => $products
+            'products' => $products,
+            'csrf_token' => $this->generateCSRFToken()
         ]);
     }
 
@@ -129,15 +130,45 @@ class ProductController extends Controller {
     }
 
     public function search() {
+        // Prevent any output before JSON response
+        ob_clean();
+        
+        header('Content-Type: application/json');
+        
         if (!$this->isPost()) {
-            return $this->response(['error' => 'Invalid request method'], 405);
+            return $this->response(['success' => false, 'error' => 'Invalid request method'], 405);
         }
 
-        $search = filter_input(INPUT_POST, 'search', FILTER_SANITIZE_STRING);
-        $products = $this->productModel->search($search);
-        
-        return $this->response([
-            'products' => $products
-        ]);
+        try {
+            $this->validateCSRF();
+            
+            $search = filter_input(INPUT_POST, 'search', FILTER_SANITIZE_STRING);
+            
+            // Debug log
+            error_log("Search request received - Term: " . $search);
+            
+            if (empty($search)) {
+                $products = $this->productModel->getAll();
+            } else {
+                $products = $this->productModel->search($search);
+            }
+            
+            $response = [
+                'success' => true,
+                'products' => $products
+            ];
+            
+            // Debug log
+            error_log("Search response: " . json_encode($response));
+            
+            return $this->response($response);
+            
+        } catch (\Exception $e) {
+            error_log("Error in product search: " . $e->getMessage());
+            return $this->response([
+                'success' => false,
+                'error' => 'Error searching products: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
