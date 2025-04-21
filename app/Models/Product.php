@@ -157,4 +157,51 @@ class Product {
         $this->db->query("SELECT * FROM products ORDER BY name ASC");
         return $this->db->resultSet();
     }
+
+    public function searchAvailable($search) {
+        $this->db->query("
+            SELECT id, code, name, price, stock 
+            FROM products 
+            WHERE (LOWER(name) LIKE :search OR LOWER(code) LIKE :search)
+            AND stock > 0
+            ORDER BY name ASC
+        ");
+        
+        $searchTerm = "%{$search}%";
+        $this->db->bind(':search', $searchTerm);
+        
+        $results = $this->db->resultSet();
+        
+        // Debug log
+        error_log("Search term: " . $search);
+        error_log("Search SQL: " . $this->db->getQuery());
+        error_log("Number of results: " . count($results));
+        
+        return $results;
+    }
+
+    public function search($search) {
+        $this->db->query("
+            SELECT id, code, name, description, price, stock 
+            FROM products 
+            WHERE LOWER(name) LIKE :search OR LOWER(code) LIKE :search
+            ORDER BY name ASC
+        ");
+        
+        $searchTerm = "%{$search}%";
+        $this->db->bind(':search', $searchTerm);
+        
+        return $this->db->resultSet();
+    }
+
+    public function getAllAvailable() {
+        $this->db->query("
+            SELECT id, code, name, price, stock 
+            FROM products 
+            WHERE stock > 0
+            ORDER BY name ASC
+        ");
+        
+        return $this->db->resultSet();
+    }
 }

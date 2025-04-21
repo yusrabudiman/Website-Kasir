@@ -31,6 +31,9 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i class="fas fa-search text-gray-400"></i>
                 </div>
+                <div id="searchLoading" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
+                </div>
             </div>
         </div>
 
@@ -174,6 +177,7 @@ const changeEl = document.getElementById('change');
 const clearCartBtn = document.getElementById('clearCartBtn');
 const processOrderBtn = document.getElementById('processOrderBtn');
 const loadingOverlay = document.getElementById('loadingOverlay');
+const searchLoading = document.getElementById('searchLoading');
 
 // Templates
 const productTemplate = document.getElementById('productTemplate');
@@ -195,7 +199,17 @@ document.addEventListener('keydown', (e) => {
 
 // Functions
 async function searchProducts() {
-    const search = searchInput.value;
+    const search = searchInput.value.trim();
+    
+    // Show loading indicator
+    searchLoading.classList.remove('hidden');
+    productGrid.innerHTML = `
+        <div class="col-span-full text-center py-4 text-gray-500">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+            <div>Searching products...</div>
+        </div>
+    `;
+
     try {
         const response = await fetch('/pos/search-product', {
             method: 'POST',
@@ -206,14 +220,42 @@ async function searchProducts() {
         });
         
         const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Failed to search products');
+        }
+        
         displayProducts(data.products);
     } catch (error) {
         console.error('Error searching products:', error);
+        productGrid.innerHTML = `
+            <div class="col-span-full text-center py-4 text-red-500">
+                <i class="fas fa-exclamation-circle text-4xl mb-2"></i>
+                <div>${error.message}</div>
+                <button onclick="searchProducts()" class="mt-2 text-indigo-600 hover:text-indigo-800">
+                    <i class="fas fa-redo mr-1"></i> Try Again
+                </button>
+            </div>
+        `;
+    } finally {
+        // Hide loading indicator
+        searchLoading.classList.add('hidden');
     }
 }
 
 function displayProducts(products) {
     productGrid.innerHTML = '';
+    if (!products || products.length === 0) {
+        productGrid.innerHTML = `
+            <div class="col-span-full text-center py-4 text-gray-500">
+                <i class="fas fa-search text-4xl mb-2 text-gray-300"></i>
+                <div>No products found</div>
+                <div class="text-sm mt-2">Try a different search term</div>
+            </div>
+        `;
+        return;
+    }
+
     products.forEach(product => {
         const productEl = productTemplate.content.cloneNode(true);
         const container = productEl.querySelector('.product-item');
@@ -223,7 +265,30 @@ function displayProducts(products) {
         container.querySelector('.product-price').textContent = formatCurrency(product.price);
         container.querySelector('.product-stock').textContent = `Stock: ${product.stock}`;
         
-        container.addEventListener('click', () => addToCart(product));
+        // Add click event to add product to cart
+        container.addEventListener('click', () => {
+            addToCart(product);
+            // Show success feedback
+            const feedback = document.createElement('div');
+            feedback.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg';
+            feedback.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>${product.name} added to cart</span>
+                </div>
+            `;
+            document.body.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 2000);
+        });
+        
+        // Add hover effect
+        container.addEventListener('mouseenter', () => {
+            container.classList.add('border-indigo-500', 'shadow-sm');
+        });
+        container.addEventListener('mouseleave', () => {
+            container.classList.remove('border-indigo-500', 'shadow-sm');
+        });
+        
         productGrid.appendChild(productEl);
     });
 }

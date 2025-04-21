@@ -23,3 +23,38 @@ Deny from all
 Order allow,deny
 Deny from all
 </FilesMatch>
+
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+
+# Cache Control
+<FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|json)$">
+    Header set Cache-Control "public, max-age=31536000"
+</FilesMatch>
+
+# Service Worker
+<FilesMatch "sw\.js$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+</FilesMatch>
+
+# Manifest
+<FilesMatch "manifest\.json$">
+    Header set Content-Type "application/manifest+json"
+</FilesMatch>
+
+# Rewrite Rules
+RewriteEngine On
+RewriteBase /
+
+# Handle service worker
+RewriteRule ^sw\.js$ - [L]
+
+# Handle manifest
+RewriteRule ^manifest\.json$ - [L]
+
+# Handle other files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L] 

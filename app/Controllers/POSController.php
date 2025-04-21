@@ -36,10 +36,33 @@ class POSController extends Controller {
             return $this->response(['error' => 'Invalid request method'], 405);
         }
 
-        $search = filter_input(INPUT_POST, 'search', FILTER_SANITIZE_STRING);
-        $products = $this->productModel->searchAvailable($search);
-        
-        return $this->response(['products' => $products]);
+        try {
+            $search = filter_input(INPUT_POST, 'search', FILTER_SANITIZE_STRING);
+            
+            // Debug log
+            error_log("Search request received: " . $search);
+            
+            if (empty($search)) {
+                // If search is empty, get all available products
+                $products = $this->productModel->getAllAvailable();
+            } else {
+                $products = $this->productModel->searchAvailable($search);
+            }
+            
+            // Debug log
+            error_log("Products found: " . json_encode($products));
+            
+            return $this->response([
+                'success' => true,
+                'products' => $products
+            ]);
+        } catch (\Exception $e) {
+            error_log("Error in searchProduct: " . $e->getMessage());
+            return $this->response([
+                'success' => false,
+                'error' => 'Error searching products: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getProduct($id) {

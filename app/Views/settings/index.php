@@ -48,49 +48,96 @@
             <div class="border-b pb-4">
                 <h2 class="text-lg font-medium mb-4">Store Information</h2>
                 
-                <!-- Store Name -->
-                <div class="mb-4">
-                    <label for="store_name" class="block text-sm font-medium text-gray-700">Store Name *</label>
-                    <input type="text" id="store_name" name="store_name" required 
-                           value="<?php echo htmlspecialchars($settings->store_name ?? ''); ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Store Name -->
+                    <div>
+                        <label for="store_name" class="block text-sm font-medium text-gray-700">Store Name *</label>
+                        <input type="text" id="store_name" name="store_name" required 
+                               value="<?php echo htmlspecialchars($settings->store_name ?? ''); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
 
-                <!-- Store Address -->
-                <div class="mb-4">
-                    <label for="store_address" class="block text-sm font-medium text-gray-700">Store Address</label>
-                    <textarea id="store_address" name="store_address" rows="3"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"><?php echo htmlspecialchars($settings->address ?? ''); ?></textarea>
-                </div>
+                    <!-- Store Address -->
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Store Address</label>
+                        <textarea id="address" name="address" rows="3"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"><?php echo htmlspecialchars($settings->address ?? ''); ?></textarea>
+                    </div>
 
-                <!-- Store Phone -->
-                <div class="mb-4">
-                    <label for="store_phone" class="block text-sm font-medium text-gray-700">Store Phone</label>
-                    <input type="text" id="store_phone" name="store_phone" 
-                           value="<?php echo htmlspecialchars($settings->phone ?? ''); ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+                    <!-- Store Phone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Store Phone</label>
+                        <input type="text" id="phone" name="phone" 
+                               value="<?php echo htmlspecialchars($settings->phone ?? ''); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
 
-                <!-- Store Email -->
-                <div class="mb-4">
-                    <label for="store_email" class="block text-sm font-medium text-gray-700">Store Email</label>
-                    <input type="email" id="store_email" name="store_email" 
-                           value="<?php echo htmlspecialchars($settings->email ?? ''); ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+                    <!-- Store Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Store Email</label>
+                        <input type="email" id="email" name="email" 
+                               value="<?php echo htmlspecialchars($settings->email ?? ''); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
 
-                <!-- Store Logo -->
-                <div>
-                    <label for="store_logo" class="block text-sm font-medium text-gray-700">Store Logo</label>
-                    <?php if (!empty($settings->store_logo)): ?>
-                        <div class="mt-2 mb-2">
-                            <img src="/public/uploads/<?php echo $settings->store_logo; ?>" 
-                                alt="Store Logo" class="h-20 w-auto">
+                    <!-- Store Logo -->
+                    <div class="md:col-span-2">
+                        <label for="logo" class="block text-sm font-medium text-gray-700">Store Logo</label>
+                        <?php 
+                        $logoPath = __DIR__ . '/../../public/uploads/' . ($settings->logo ?? '');
+                        if (!empty($settings->logo) && file_exists($logoPath)): 
+                            // Extract filename from full path
+                            $logoFilename = basename($settings->logo);
+                        ?>
+                            <div class="mt-2 mb-2">
+                                <img src="/uploads/<?php echo $logoFilename; ?>" 
+                                    alt="Store Logo" 
+                                    class="h-64 w-64 object-contain cursor-pointer hover:opacity-75 transition-opacity"
+                                    onclick="showImagePreview(this.src)"
+                                    id="logoPreview">
+                            </div>
+                        <?php else: ?>
+                            <div class="mt-2 mb-2">
+                                <div class="h-64 w-64 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                                    <div class="text-center">
+                                        <i class="fas fa-image text-gray-400 text-4xl mb-2"></i>
+                                        <p class="text-sm text-gray-500">No logo uploaded</p>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        <div class="mt-2">
+                            <label class="block">
+                                <span class="sr-only">Choose file</span>
+                                <input type="file" id="logo" name="logo" accept="image/*"
+                                       class="block w-full text-sm text-gray-500
+                                              file:mr-4 file:py-2 file:px-4
+                                              file:rounded-md file:border-0
+                                              file:text-sm file:font-semibold
+                                              file:bg-indigo-50 file:text-indigo-700
+                                              hover:file:bg-indigo-100"
+                                       onchange="previewLogo(this)">
+                            </label>
+                            <p class="mt-1 text-sm text-gray-500">Upload a logo (max 2MB, JPG, PNG, GIF)</p>
                         </div>
-                    <?php endif; ?>
-                    <input type="file" id="store_logo" name="store_logo" accept="image/*"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                    <p class="mt-1 text-sm text-gray-500">Upload a logo (max 2MB, JPG, PNG, GIF)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Preview Modal -->
+            <div id="imagePreviewModal" class="fixed hidden inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 w-full max-w-2xl">
+                    <div class="bg-white rounded-lg shadow-xl">
+                        <div class="flex justify-between items-center p-4 border-b">
+                            <h3 class="text-lg font-medium text-gray-900">Image Preview</h3>
+                            <button type="button" onclick="closeImagePreview()" class="text-gray-400 hover:text-gray-500">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <img id="previewImage" src="" alt="Preview" class="max-w-full h-auto mx-auto">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -98,50 +145,69 @@
             <div class="border-b pb-4">
                 <h2 class="text-lg font-medium mb-4">Business Settings</h2>
                 
-                <!-- Tax Percentage -->
-                <div class="mb-4">
-                    <label for="tax_percentage" class="block text-sm font-medium text-gray-700">Tax Percentage (%)</label>
-                    <input type="number" id="tax_percentage" name="tax_percentage" step="0.01" min="0" max="100" 
-                           value="<?php echo htmlspecialchars($settings->tax_percentage ?? '11.00'); ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Tax Rate -->
+                    <div>
+                        <label for="tax_rate" class="block text-sm font-medium text-gray-700">Tax Rate (%)</label>
+                        <input type="number" id="tax_rate" name="tax_rate" step="0.01" min="0" max="100" 
+                               value="<?php echo htmlspecialchars($settings->tax_rate ?? '0'); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
 
-                <!-- Currency Symbol -->
-                <div class="mb-4">
-                    <label for="currency_symbol" class="block text-sm font-medium text-gray-700">Currency Symbol</label>
-                    <input type="text" id="currency_symbol" name="currency_symbol" 
-                           value="<?php echo htmlspecialchars($settings->currency_symbol ?? 'Rp'); ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+                    <!-- Service Charge -->
+                    <div>
+                        <label for="service_charge" class="block text-sm font-medium text-gray-700">Service Charge (%)</label>
+                        <input type="number" id="service_charge" name="service_charge" step="0.01" min="0" max="100" 
+                               value="<?php echo htmlspecialchars($settings->service_charge ?? '0'); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
 
-                <!-- Low Stock Threshold -->
-                <div>
-                    <label for="low_stock_threshold" class="block text-sm font-medium text-gray-700">Low Stock Threshold</label>
-                    <input type="number" id="low_stock_threshold" name="low_stock_threshold" min="1" 
-                           value="<?php echo htmlspecialchars($settings->low_stock_threshold ?? '10'); ?>"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <p class="mt-1 text-sm text-gray-500">Products will be marked as "Low Stock" when quantity falls below this number</p>
+                    <!-- Low Stock Threshold -->
+                    <div>
+                        <label for="low_stock_threshold" class="block text-sm font-medium text-gray-700">Low Stock Threshold</label>
+                        <input type="number" id="low_stock_threshold" name="low_stock_threshold" min="1" 
+                               value="<?php echo htmlspecialchars($settings->low_stock_threshold ?? '10'); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <p class="mt-1 text-sm text-gray-500">Minimum stock level before warning is triggered</p>
+                    </div>
+
+                    <!-- Currency Symbol -->
+                    <div>
+                        <label for="currency_symbol" class="block text-sm font-medium text-gray-700">Currency Symbol</label>
+                        <input type="text" id="currency_symbol" name="currency_symbol" 
+                               value="<?php echo htmlspecialchars($settings->currency_symbol ?? 'Rp'); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <p class="mt-1 text-sm text-gray-500">Currency symbol used in the system (e.g., Rp, $, €)</p>
+                    </div>
+
+                    <!-- Printer Name -->
+                    <div>
+                        <label for="printer_name" class="block text-sm font-medium text-gray-700">Printer Name</label>
+                        <input type="text" id="printer_name" name="printer_name" 
+                               value="<?php echo htmlspecialchars($settings->printer_name ?? ''); ?>"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <!-- Printer Type -->
+                    <div>
+                        <label for="printer_type" class="block text-sm font-medium text-gray-700">Printer Type</label>
+                        <select id="printer_type" name="printer_type" 
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="thermal" <?php echo ($settings->printer_type ?? '') === 'thermal' ? 'selected' : ''; ?>>Thermal Printer</option>
+                            <option value="regular" <?php echo ($settings->printer_type ?? '') === 'regular' ? 'selected' : ''; ?>>Regular Printer</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <!-- Receipt Settings Section -->
             <div>
                 <h2 class="text-lg font-medium mb-4">Receipt Settings</h2>
-                
-                <!-- Receipt Footer -->
-                <div class="mb-4">
-                    <label for="receipt_footer" class="block text-sm font-medium text-gray-700">Receipt Footer Text</label>
-                    <textarea id="receipt_footer" name="receipt_footer" rows="3"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"><?php echo htmlspecialchars($settings->receipt_footer ?? 'Thank you for your purchase! Please come again.'); ?></textarea>
-                    <p class="mt-1 text-sm text-gray-500">This text will appear at the bottom of customer receipts</p>
-                </div>
-
                 <!-- Thank You Message -->
                 <div>
                     <label for="thank_you_message" class="block text-sm font-medium text-gray-700">Thank You Message</label>
                     <textarea id="thank_you_message" name="thank_you_message" rows="3"
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"><?php echo htmlspecialchars($settings->thank_you_message ?? 'Terima kasih telah berbelanja di toko kami. Kami menghargai kepercayaan Anda dan berharap dapat melayani Anda kembali.'); ?></textarea>
-                    <p class="mt-1 text-sm text-gray-500">Pesan ucapan terima kasih yang akan ditampilkan di struk pembayaran</p>
                 </div>
             </div>
 
@@ -333,6 +399,54 @@
             closeModal();
         }
     }
+
+    function previewLogo(input) {
+        const preview = document.getElementById('logoPreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (!preview) {
+                    const previewContainer = document.createElement('div');
+                    previewContainer.className = 'mt-2 mb-2';
+                    previewContainer.innerHTML = `<img src="${e.target.result}" alt="Store Logo" class="h-64 w-64 object-contain cursor-pointer hover:opacity-75 transition-opacity" onclick="showImagePreview(this.src)" id="logoPreview">`;
+                    input.parentNode.insertBefore(previewContainer, input);
+                } else {
+                    preview.src = e.target.result;
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function showImagePreview(src) {
+        const modal = document.getElementById('imagePreviewModal');
+        const previewImage = document.getElementById('previewImage');
+        previewImage.src = src;
+        modal.classList.remove('hidden');
+    }
+
+    function closeImagePreview(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        document.getElementById('imagePreviewModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('imagePreviewModal');
+        if (event.target == modal) {
+            closeImagePreview(event);
+        }
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeImagePreview(event);
+        }
+    });
     </script>
 </div>
 
