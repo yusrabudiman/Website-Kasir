@@ -23,17 +23,19 @@ CREATE TABLE IF NOT EXISTS store_settings (
     phone VARCHAR(20),
     email VARCHAR(100),
     logo VARCHAR(255),
-    tax_rate DECIMAL(5,2) DEFAULT 0,
-    service_charge DECIMAL(5,2) DEFAULT 0,
+    tax_rate DECIMAL(5,2) DEFAULT 0.00,
+    service_charge DECIMAL(5,2) DEFAULT 0.00,
     printer_name VARCHAR(100),
-    printer_type ENUM('thermal', 'dot_matrix') DEFAULT 'thermal',
-    thank_you_message TEXT DEFAULT 'Terima kasih telah berbelanja di toko kami. Kami menghargai kepercayaan Anda dan berharap dapat melayani Anda kembali.',
+    printer_type ENUM('thermal', 'regular') DEFAULT 'thermal' COMMENT 'Valid values: thermal, regular',
+    thank_you_message TEXT,
+    currency_symbol VARCHAR(10) DEFAULT 'Rp',
+    low_stock_threshold INT DEFAULT 10,
     created_by VARCHAR(36),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_by VARCHAR(36),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (updated_by) REFERENCES users(id)
 ); 
 
 -- Products

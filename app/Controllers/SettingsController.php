@@ -39,14 +39,16 @@ class SettingsController extends Controller {
         // Collect form data
         $data = [
             'store_name' => filter_input(INPUT_POST, 'store_name', FILTER_SANITIZE_STRING),
-            'address' => filter_input(INPUT_POST, 'store_address', FILTER_SANITIZE_STRING),
-            'phone' => filter_input(INPUT_POST, 'store_phone', FILTER_SANITIZE_STRING),
-            'email' => filter_input(INPUT_POST, 'store_email', FILTER_SANITIZE_EMAIL),
+            'address' => filter_input(INPUT_POST, 'address', FILTER_SANITIZE_STRING),
+            'phone' => filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING),
+            'email' => filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL),
             'tax_rate' => filter_input(INPUT_POST, 'tax_rate', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
             'service_charge' => filter_input(INPUT_POST, 'service_charge', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
             'printer_name' => filter_input(INPUT_POST, 'printer_name', FILTER_SANITIZE_STRING),
             'printer_type' => filter_input(INPUT_POST, 'printer_type', FILTER_SANITIZE_STRING),
-            'thank_you_message' => filter_input(INPUT_POST, 'thank_you_message', FILTER_SANITIZE_STRING)
+            'thank_you_message' => filter_input(INPUT_POST, 'thank_you_message', FILTER_SANITIZE_STRING),
+            'currency_symbol' => filter_input(INPUT_POST, 'currency_symbol', FILTER_SANITIZE_STRING),
+            'low_stock_threshold' => filter_input(INPUT_POST, 'low_stock_threshold', FILTER_SANITIZE_NUMBER_INT)
         ];
 
         // Validate required fields
@@ -73,11 +75,16 @@ class SettingsController extends Controller {
 
         try {
             $userId = $_SESSION['user_id'];
-            $this->settingsModel->save($data, $userId);
-            $this->logActivity('Store settings updated');
+            $result = $this->settingsModel->save($data, $userId);
             
-            $_SESSION['flash_message'] = 'Settings updated successfully';
-            $_SESSION['flash_type'] = 'success';
+            if ($result) {
+                $this->logActivity('Store settings updated');
+                $_SESSION['flash_message'] = 'Settings updated successfully';
+                $_SESSION['flash_type'] = 'success';
+            } else {
+                $_SESSION['flash_message'] = 'Failed to update settings';
+                $_SESSION['flash_type'] = 'error';
+            }
         } catch (\Exception $e) {
             $_SESSION['flash_message'] = 'Error updating settings: ' . $e->getMessage();
             $_SESSION['flash_type'] = 'error';
