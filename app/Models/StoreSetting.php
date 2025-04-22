@@ -353,4 +353,14 @@ class StoreSetting {
             '£' => 'Pound (£)'
         ];
     }
+
+    /**
+     * Get all store settings
+     * 
+     * @return array
+     */
+    public function get()
+    {
+        return $this->getSettings();
+    }
 } 

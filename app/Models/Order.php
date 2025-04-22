@@ -308,4 +308,55 @@ class Order {
         $result = $this->db->single();
         return $result ? $result->invoice_number : null;
     }
+
+    public function getOrderWithItems($orderId) {
+        try {
+            // Get order data with cashier name
+            $this->db->query("
+                SELECT 
+                    o.*,
+                    u.name as cashier_name
+                FROM orders o
+                LEFT JOIN users u ON o.created_by = u.id
+                WHERE o.id = :order_id
+            ");
+            
+            $this->db->bind(':order_id', $orderId);
+            $order = $this->db->single();
+
+            if (!$order) {
+                error_log("Order not found: " . $orderId);
+                return null;
+            }
+
+            // Get order items with product details
+            $this->db->query("
+                SELECT 
+                    oi.*,
+                    p.name,
+                    p.code,
+                    p.stock
+                FROM order_items oi
+                LEFT JOIN products p ON oi.product_id = p.id
+                WHERE oi.order_id = :order_id
+            ");
+            
+            $this->db->bind(':order_id', $orderId);
+            $items = $this->db->resultSet();
+
+            // Add items to order object
+            $order->items = $items;
+
+            // Get store settings for tax info
+            $this->db->query("SELECT tax_rate as tax_percentage FROM store_settings LIMIT 1");
+            $settings = $this->db->single();
+            $order->tax_percentage = $settings ? $settings->tax_percentage : 0;
+
+            return $order;
+        } catch (\Exception $e) {
+            error_log("Error in getOrderWithItems: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            throw $e;
+        }
+    }
 }

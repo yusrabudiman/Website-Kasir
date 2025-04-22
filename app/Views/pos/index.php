@@ -467,8 +467,8 @@ async function processOrder() {
         console.log('Server response:', result);
         
         if (result.success) {
-            // Print receipt
-            window.open(`/pos/print-receipt/${result.order_id}`, '_blank');
+            // Ubah URL dari print-receipt menjadi receipt
+            window.open(`/pos/receipt/${result.order_id}`, '_blank');
             
             // Clear cart
             clearCart();

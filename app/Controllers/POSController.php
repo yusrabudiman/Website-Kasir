@@ -226,16 +226,33 @@ class POSController extends Controller {
     }
 
     public function printReceipt($orderId) {
-        $order = $this->orderModel->getOrderWithItems($orderId);
-        if (!$order) {
-            return $this->response(['error' => 'Order not found'], 404);
-        }
+        try {
+            // Debug log
+            error_log("Attempting to print receipt for order: " . $orderId);
+            
+            // Get order data
+            $order = $this->orderModel->getOrderWithItems($orderId);
+            if (!$order) {
+                error_log("Order not found: " . $orderId);
+                return $this->response(['error' => 'Order not found'], 404);
+            }
 
-        $settings = $this->settingModel->get();
-        
-        return $this->view('pos/receipt', [
-            'order' => $order,
-            'settings' => $settings
-        ]);
+            // Get store settings
+            $settings = $this->settingModel->get();
+            
+            // Debug log
+            error_log("Order data: " . print_r($order, true));
+            error_log("Settings data: " . print_r($settings, true));
+
+            // Render receipt view
+            return $this->view('pos/receipt', [
+                'order' => $order,
+                'settings' => $settings
+            ]);
+        } catch (\Exception $e) {
+            error_log("Error in printReceipt: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            return $this->response(['error' => 'Failed to generate receipt'], 500);
+        }
     }
 }
