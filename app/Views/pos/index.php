@@ -12,6 +12,7 @@
 
 <!-- Back to Dashboard Button -->
 <div class="p-4 flex justify-end">
+    <input type="hidden" id="csrf_token" value="<?php echo $csrf_token; ?>">
     <a href="/dashboard" class="inline-flex items-center text-gray-700 hover:text-indigo-600">
         <i class="fas fa-arrow-left mr-2"></i>
         Back to Dashboard
@@ -157,7 +158,7 @@
 <script>
 // Constants
 const TAX_RATE = <?php echo $tax_rate; ?>;
-const CSRF_TOKEN = '<?php echo $csrf_token; ?>';
+const CSRF_TOKEN = document.getElementById('csrf_token').value;
 
 // Cart state
 let cart = [];
@@ -414,28 +415,56 @@ async function processOrder() {
     loadingOverlay.classList.remove('hidden');
 
     try {
+        // Format items data
+        const formattedItems = cart.map(item => {
+            // Debug each item
+            console.log('Processing cart item:', item);
+            
+            // Validate required fields
+            if (!item.id || !item.code || !item.name || !item.quantity || !item.price) {
+                console.error('Invalid item data:', item);
+                throw new Error('Invalid item data in cart');
+            }
+
+            return {
+                product_id: item.id,
+                code: item.code,
+                name: item.name,
+                quantity: parseInt(item.quantity),
+                price: parseFloat(item.price),
+                subtotal: parseFloat(item.price * item.quantity)
+            };
+        });
+
+        // Debug log
+        console.log('Cart items:', cart);
+        console.log('Formatted items:', formattedItems);
+        console.log('Payment amount:', payment);
+        console.log('Total amount:', total);
+        console.log('Tax amount:', tax);
+        console.log('Change amount:', payment - total);
+
+        const formData = new FormData();
+        formData.append('csrf_token', CSRF_TOKEN);
+        formData.append('items', JSON.stringify(formattedItems));
+        formData.append('total_amount', subtotal.toFixed(2));
+        formData.append('tax_amount', tax.toFixed(2));
+        formData.append('final_amount', total.toFixed(2));
+        formData.append('payment_amount', payment.toFixed(2));
+        formData.append('change_amount', (payment - total).toFixed(2));
+
+        // Debug form data
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+
         const response = await fetch('/pos/create-order', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                items: cart.map(item => ({
-                    product_id: item.id,
-                    quantity: item.quantity,
-                    price: item.price,
-                    subtotal: item.price * item.quantity
-                })),
-                total_amount: subtotal,
-                tax_amount: tax,
-                final_amount: total,
-                payment_amount: payment,
-                change_amount: payment - total,
-                csrf_token: CSRF_TOKEN
-            })
+            body: formData
         });
 
         const result = await response.json();
+        console.log('Server response:', result);
         
         if (result.success) {
             // Print receipt
@@ -447,10 +476,14 @@ async function processOrder() {
             // Reset search
             searchInput.value = '';
             productGrid.innerHTML = '';
+            
+            // Show success message
+            alert('Order processed successfully!');
         } else {
             throw new Error(result.error || 'Failed to process order');
         }
     } catch (error) {
+        console.error('Error processing order:', error);
         alert('Error processing order: ' + error.message);
     } finally {
         loadingOverlay.classList.add('hidden');

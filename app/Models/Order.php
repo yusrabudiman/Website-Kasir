@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use App\Core\Database;
+use Ramsey\Uuid\Uuid;
 
 class Order {
     private $db;
@@ -221,14 +222,17 @@ class Order {
         try {
             $this->db->beginTransaction();
 
+            // Debug log
+            error_log("Starting order creation with data: " . print_r($data, true));
+
             // Insert order
             $this->db->query("
                 INSERT INTO orders (
                     id, invoice_number, total_amount, tax_amount, 
-                    final_amount, payment_amount, change_amount, created_by
+                    final_amount, payment_amount, change_amount, created_by, created_at
                 ) VALUES (
                     :id, :invoice_number, :total_amount, :tax_amount,
-                    :final_amount, :payment_amount, :change_amount, :created_by
+                    :final_amount, :payment_amount, :change_amount, :created_by, :created_at
                 )
             ");
 
@@ -240,27 +244,33 @@ class Order {
             $this->db->bind(':payment_amount', $data['payment_amount']);
             $this->db->bind(':change_amount', $data['change_amount']);
             $this->db->bind(':created_by', $data['created_by']);
+            $this->db->bind(':created_at', $data['created_at']);
 
             $this->db->execute();
+            error_log("Order inserted successfully");
 
             // Insert order items
             foreach ($data['items'] as $item) {
+                error_log("Processing order item: " . print_r($item, true));
+
                 $this->db->query("
                     INSERT INTO order_items (
-                        id, order_id, product_id, quantity, price, subtotal
+                        id, order_id, product_id, quantity, price, subtotal, created_at
                     ) VALUES (
-                        :id, :order_id, :product_id, :quantity, :price, :subtotal
+                        :id, :order_id, :product_id, :quantity, :price, :subtotal, :created_at
                     )
                 ");
 
-                $this->db->bind(':id', $item['id']);
+                $this->db->bind(':id', Uuid::uuid4()->toString());
                 $this->db->bind(':order_id', $data['id']);
                 $this->db->bind(':product_id', $item['product_id']);
                 $this->db->bind(':quantity', $item['quantity']);
                 $this->db->bind(':price', $item['price']);
                 $this->db->bind(':subtotal', $item['subtotal']);
+                $this->db->bind(':created_at', date('Y-m-d H:i:s'));
 
                 $this->db->execute();
+                error_log("Order item inserted successfully");
 
                 // Update product stock
                 $this->db->query("
@@ -272,13 +282,30 @@ class Order {
                 $this->db->bind(':quantity', $item['quantity']);
                 $this->db->bind(':product_id', $item['product_id']);
                 $this->db->execute();
+                error_log("Product stock updated successfully");
             }
 
             $this->db->commit();
+            error_log("Order creation completed successfully");
             return true;
         } catch (\Exception $e) {
             $this->db->rollBack();
+            error_log("Error in Order::create: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             throw $e;
         }
+    }
+
+    public function getLastInvoiceNumber($date) {
+        $this->db->query("
+            SELECT invoice_number 
+            FROM orders 
+            WHERE invoice_number LIKE :prefix 
+            ORDER BY invoice_number DESC 
+            LIMIT 1
+        ");
+        $this->db->bind(':prefix', "INV/{$date}/%");
+        $result = $this->db->single();
+        return $result ? $result->invoice_number : null;
     }
 }

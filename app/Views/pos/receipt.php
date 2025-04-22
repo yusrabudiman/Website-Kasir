@@ -5,6 +5,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Tambahkan QR Code library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <meta charset="utf-8">
     <title>Receipt #<?php echo $order->invoice_number; ?></title>
     <style>
@@ -33,6 +35,19 @@
         @media print {
             .no-print { display: none; }
         }
+        .qr-code {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .social-info {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 5px;
+        }
+        .stock-info {
+            font-size: 10px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -41,7 +56,13 @@
         <div class="store-name font-bold mb-1"><?php echo htmlspecialchars($settings->store_name); ?></div>
         <div class="mb-1"><?php echo nl2br(htmlspecialchars($settings->address)); ?></div>
         <div class="mb-2"><?php echo htmlspecialchars($settings->phone); ?></div>
+        <?php if (isset($settings->logo) && !empty($settings->logo)): ?>
+            <img src="<?php echo $settings->logo; ?>" alt="Store Logo" class="mx-auto mb-2" style="max-width: 100px;">
+        <?php endif; ?>
     </div>
+
+    <!-- QR Code -->
+    <div class="qr-code" id="qrcode"></div>
 
     <!-- Order Info -->
     <div class="border-bottom border-top py-1">
@@ -58,6 +79,10 @@
                 <td>Cashier</td>
                 <td>: <?php echo htmlspecialchars($order->cashier_name); ?></td>
             </tr>
+            <tr>
+                <td>Payment Method</td>
+                <td>: Cash</td>
+            </tr>
         </table>
     </div>
 
@@ -71,7 +96,12 @@
         </tr>
         <?php foreach ($order->items as $item): ?>
         <tr>
-            <td class="item-name"><?php echo htmlspecialchars($item->name); ?></td>
+            <td class="item-name">
+                <?php echo htmlspecialchars($item->name); ?>
+                <?php if (isset($item->stock)): ?>
+                    <div class="stock-info">Stock: <?php echo $item->stock; ?></div>
+                <?php endif; ?>
+            </td>
             <td class="text-right"><?php echo $item->quantity; ?></td>
             <td class="text-right"><?php echo number_format($item->price, 0, ',', '.'); ?></td>
             <td class="text-right"><?php echo number_format($item->subtotal, 0, ',', '.'); ?></td>
@@ -103,20 +133,36 @@
         </tr>
     </table>
 
-    <!-- Footer -->
+    <!-- Enhanced Footer -->
     <div class="text-center py-1 border-top">
-        <p class="mb-1">Thank you for your purchase!</p>
-        <p class="mb-1">Please come again</p>
+        <p class="mb-1"><?php echo htmlspecialchars($settings->thank_you_message); ?></p>
+        <div class="social-info">
+            <p>Business Hours: 09:00 - 22:00</p>
+            <p>Follow us on:</p>
+            <p>Instagram: @yourstorename</p>
+            <p>Website: www.yourstore.com</p>
+        </div>
     </div>
 
-    <!-- Print Button (hidden when printing) -->
+    <!-- Print Button -->
     <div class="no-print text-center" style="margin-top: 20px;">
-        <button onclick="window.print()" style="padding: 10px 20px;">Print Receipt</button>
+        <button onclick="window.print()" class="bg-blue-500 text-white px-4 py-2 rounded">
+            <i class="fas fa-print mr-2"></i> Print Receipt
+        </button>
+        <button onclick="window.location.href='/pos'" class="bg-gray-500 text-white px-4 py-2 rounded ml-2">
+            <i class="fas fa-arrow-left mr-2"></i> Back to POS
+        </button>
     </div>
 
     <script>
-        // Auto print when page loads
+        // Generate QR Code
         window.onload = function() {
+            var qr = qrcode(0, 'M');
+            qr.addData('<?php echo $order->invoice_number; ?>');
+            qr.make();
+            document.getElementById('qrcode').innerHTML = qr.createImgTag(4);
+            
+            // Auto print
             window.print();
         }
     </script>
