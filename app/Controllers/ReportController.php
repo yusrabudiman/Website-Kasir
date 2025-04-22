@@ -21,7 +21,29 @@ class ReportController extends Controller {
 
     public function index() {
         $this->checkAuth();
-        return $this->view('reports/index');
+        
+        // Get today's stats
+        $today = date('Y-m-d');
+        $todayStats = $this->order->getSalesSummary($today, $today);
+        
+        // Get this month's stats
+        $monthStart = date('Y-m-01');
+        $monthEnd = date('Y-m-t');
+        $monthStats = $this->order->getSalesSummary($monthStart, $monthEnd);
+        
+        // Get inventory stats
+        $inventoryStats = $this->product->getInventorySummary();
+        
+        $stats = (object)[
+            'today_sales' => $todayStats->total_sales ?? 0,
+            'today_orders' => $todayStats->total_orders ?? 0,
+            'month_sales' => $monthStats->total_sales ?? 0,
+            'month_orders' => $monthStats->total_orders ?? 0,
+            'low_stock' => $inventoryStats->low_stock ?? 0,
+            'total_products' => $inventoryStats->total_products ?? 0
+        ];
+        
+        return $this->view('reports/index', ['stats' => $stats]);
     }
 
     public function sales() {
