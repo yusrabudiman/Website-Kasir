@@ -21,14 +21,12 @@ class POSController extends Controller {
     public function index() {
         $this->checkAuth(['cashier', 'admin']);
         
-        // Get tax rate and service charge
+        // Perbaiki cara mengambil tax_rate
         $taxRate = $this->settingModel->getTaxRate() ?? 0;
-        $serviceCharge = $this->settingModel->getServiceCharge() ?? 0;
         
         return $this->view('pos/index', [
             'title' => 'Point of Sale',
             'tax_rate' => $taxRate,
-            'service_charge' => $serviceCharge,
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
@@ -186,25 +184,6 @@ class POSController extends Controller {
                 return $this->response(['error' => 'Change amount does not match payment - final amount'], 400);
             }
 
-            // Validate service charge amount
-            if (!isset($_POST['service_charge_amount'])) {
-                error_log("Service charge amount is missing");
-                return $this->response(['error' => 'Missing service charge amount'], 400);
-            }
-            if (!is_numeric($_POST['service_charge_amount'])) {
-                error_log("Invalid service charge amount: " . $_POST['service_charge_amount']);
-                return $this->response(['error' => 'Invalid service charge amount'], 400);
-            }
-
-            // Update final amount validation to include service charge
-            $postedServiceCharge = floatval($_POST['service_charge_amount']);
-            $expectedFinal = $postedTotal + $postedTax + $postedServiceCharge;
-            
-            if (abs($expectedFinal - $postedFinal) > $tolerance) {
-                error_log("Final amount mismatch. Expected: " . $expectedFinal . ", Received: " . $postedFinal);
-                return $this->response(['error' => 'Final amount does not match total + tax + service charge'], 400);
-            }
-
             // Generate invoice number
             $date = date('Ymd');
             $lastInvoice = $this->orderModel->getLastInvoiceNumber($date);
@@ -219,7 +198,6 @@ class POSController extends Controller {
                 'items' => $items,
                 'total_amount' => floatval($_POST['total_amount']),
                 'tax_amount' => floatval($_POST['tax_amount']),
-                'service_charge_amount' => floatval($_POST['service_charge_amount']),
                 'final_amount' => floatval($_POST['final_amount']),
                 'payment_amount' => floatval($_POST['payment_amount']),
                 'change_amount' => floatval($_POST['change_amount']),

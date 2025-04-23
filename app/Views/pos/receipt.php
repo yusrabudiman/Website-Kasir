@@ -179,7 +179,7 @@
             </table>
 
             <!-- Order Summary -->
-            <table class="py-1">
+            <table class="summary-table py-1">
                 <tr>
                     <td>Subtotal</td>
                     <td class="text-right"><?php echo number_format($order->total_amount, 0, ',', '.'); ?></td>
@@ -188,11 +188,7 @@
                     <td>Tax (<?php echo $settings->tax_rate; ?>%)</td>
                     <td class="text-right"><?php echo number_format($order->tax_amount, 0, ',', '.'); ?></td>
                 </tr>
-                <tr>
-                    <td>Service Charge (<?php echo $settings->service_charge; ?>%)</td>
-                    <td class="text-right"><?php echo number_format($order->service_charge_amount, 0, ',', '.'); ?></td>
-                </tr>
-                <tr class="font-bold border-top py-1">
+                <tr class="total-row border-top py-1">
                     <td>Total</td>
                     <td class="text-right"><?php echo number_format($order->final_amount, 0, ',', '.'); ?></td>
                 </tr>

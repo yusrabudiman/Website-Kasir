@@ -82,10 +82,6 @@
                 <span class="text-gray-600">Tax (<?php echo $tax_rate; ?>%):</span>
                 <span class="font-medium" id="tax">Rp 0</span>
             </div>
-            <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Service Charge (<?php echo $service_charge; ?>%):</span>
-                <span class="font-medium" id="service-charge">Rp 0</span>
-            </div>
             <div class="flex justify-between text-lg font-bold">
                 <span>Total:</span>
                 <span id="total">Rp 0</span>
@@ -162,7 +158,6 @@
 <script>
 // Constants
 const TAX_RATE = <?php echo $tax_rate; ?>;
-const SERVICE_CHARGE_RATE = <?php echo $service_charge; ?>;
 const CSRF_TOKEN = document.getElementById('csrf_token').value;
 
 // Cart state
@@ -379,12 +374,10 @@ function removeFromCart(productId) {
 function updateTotals() {
     subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     tax = subtotal * (TAX_RATE / 100);
-    const serviceChargeAmount = (subtotal * SERVICE_CHARGE_RATE / 100);
-    total = subtotal + tax + serviceChargeAmount;
+    total = subtotal + tax;
     
     subtotalEl.textContent = formatCurrency(subtotal);
     taxEl.textContent = formatCurrency(tax);
-    document.getElementById('service-charge').textContent = formatCurrency(serviceChargeAmount);
     totalEl.textContent = formatCurrency(total);
     
     calculateChange();
@@ -449,7 +442,6 @@ async function processOrder() {
         console.log('Payment amount:', payment);
         console.log('Total amount:', total);
         console.log('Tax amount:', tax);
-        console.log('Service charge amount:', serviceChargeAmount);
         console.log('Change amount:', payment - total);
 
         const formData = new FormData();
@@ -457,7 +449,6 @@ async function processOrder() {
         formData.append('items', JSON.stringify(formattedItems));
         formData.append('total_amount', subtotal.toFixed(2));
         formData.append('tax_amount', tax.toFixed(2));
-        formData.append('service_charge_amount', serviceChargeAmount.toFixed(2));
         formData.append('final_amount', total.toFixed(2));
         formData.append('payment_amount', payment.toFixed(2));
         formData.append('change_amount', (payment - total).toFixed(2));
@@ -477,7 +468,8 @@ async function processOrder() {
         
         if (result.success) {
             // Ubah URL dari print-receipt menjadi receipt
-            window.open(`/pos/receipt/${result.order_id}`, '_blank');
+            window.location.href = `/pos/receipt/${result.order_id}`;
+
             
             // Clear cart
             clearCart();
@@ -487,7 +479,7 @@ async function processOrder() {
             productGrid.innerHTML = '';
             
             // Show success message
-            alert('Order processed successfully!');
+            // alert('Order processed successfully!');
         } else {
             throw new Error(result.error || 'Failed to process order');
         }

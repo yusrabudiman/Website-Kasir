@@ -363,9 +363,4 @@ class StoreSetting {
     {
         return $this->getSettings();
     }
-
-    public function getServiceCharge() {
-        $settings = $this->getSettings();
-        return $settings ? (float)$settings->service_charge : 0;
-    }
 } 
