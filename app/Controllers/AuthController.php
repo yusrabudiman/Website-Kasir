@@ -2,15 +2,19 @@
 namespace App\Controllers;
 
 use App\Core\Controller as BaseController;
+use App\Core\Cache;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
 
 class AuthController extends BaseController {
     private $userModel;
+    protected $cache;
 
     public function __construct() {
+        parent::__construct();
         error_log("AuthController constructor called");
         $this->userModel = $this->model('User');
+        $this->cache = Cache::getInstance();
     }
 
     protected function generateCSRFToken() {
@@ -46,7 +50,16 @@ class AuthController extends BaseController {
                 // Regenerate session ID for security
                 session_regenerate_id(true);
                 
-                // Redirect to the intended UR
+                // Cache user data
+                $this->cache->set('user_' . $user->id, [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'role' => $user->role,
+                    'email' => $user->email ?? '',
+                    'last_activity' => time()
+                ], 3600); // Cache for 1 hour
+                
+                // Redirect to the intended URL
                 $this->redirect('/dashboard');
             } else {
                 return $this->view('auth/login', [
@@ -141,6 +154,11 @@ class AuthController extends BaseController {
     }
 
     public function logout() {
+        // Clear user cache if exists
+        if (isset($_SESSION['user_id'])) {
+            $this->cache->delete('user_' . $_SESSION['user_id']);
+        }
+        
         // Destroy all session data
         session_destroy();
         

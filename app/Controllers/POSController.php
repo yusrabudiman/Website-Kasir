@@ -255,20 +255,4 @@ class POSController extends Controller {
             return $this->response(['error' => 'Failed to generate receipt'], 500);
         }
     }
-
-    public function getProductStock($productId) {
-        try {
-            $product = $this->productModel->findById($productId);
-            if (!$product) {
-                return $this->response(['error' => 'Product not found'], 404);
-            }
-            return $this->response([
-                'success' => true,
-                'stock' => $product->stock
-            ]);
-        } catch (\Exception $e) {
-            error_log("Error in getProductStock: " . $e->getMessage());
-            return $this->response(['error' => 'Failed to get product stock'], 500);
-        }
-    }
 }

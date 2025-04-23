@@ -3,10 +3,13 @@ namespace App\Core;
 
 use Ramsey\Uuid\Uuid;
 use App\Models\AuditLog;
+use App\Core\Cache;
 
 class Controller {
+    protected $cache;
+
     public function __construct() {
-        // Base constructor
+        $this->cache = Cache::getInstance();
     }
 
     protected function view($view, $data = []) {
@@ -63,12 +66,29 @@ class Controller {
     }
     
     protected function checkAuth($allowedRoles = []) {
-        // Check if user is logged in
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
             $_SESSION['flash_message'] = 'Please login to continue';
             $_SESSION['flash_type'] = 'error';
             $this->redirect('/login');
+            return false;
+        }
+        
+        // Check cache for user data
+        $cachedUser = $this->cache->get('user_' . $_SESSION['user_id']);
+        if ($cachedUser) {
+            // Update last activity
+            $cachedUser['last_activity'] = time();
+            $this->cache->set('user_' . $_SESSION['user_id'], $cachedUser, 3600);
+        } else {
+            // If cache expired, verify from session
+            $this->cache->set('user_' . $_SESSION['user_id'], [
+                'id' => $_SESSION['user_id'],
+                'name' => $_SESSION['user_name'],
+                'role' => $_SESSION['user_role'],
+                'email' => $_SESSION['user_email'] ?? '',
+                'last_activity' => time()
+            ], 3600);
         }
         
         // Check role if specified
@@ -77,6 +97,8 @@ class Controller {
             $_SESSION['flash_type'] = 'error';
             $this->redirect('/dashboard');
         }
+        
+        return true;
     }
     
     protected function setFlash($type, $message) {
