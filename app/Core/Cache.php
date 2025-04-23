@@ -6,7 +6,13 @@ class Cache {
     private $cache = [];
     private $prefix = 'app_cache_';
     
-    private function __construct() {}
+    private function __construct() {
+        // Create cache directory if it doesn't exist
+        $cacheDir = __DIR__ . '/../../storage/cache';
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0777, true);
+        }
+    }
     
     public static function getInstance() {
         if (self::$instance === null) {
@@ -27,10 +33,6 @@ class Cache {
         
         // Save to file cache
         $cacheDir = __DIR__ . '/../../storage/cache';
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0777, true);
-        }
-        
         $cacheFile = $cacheDir . '/' . $cacheKey . '.cache';
         file_put_contents($cacheFile, serialize($data));
         

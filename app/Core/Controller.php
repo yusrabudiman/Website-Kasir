@@ -9,7 +9,13 @@ class Controller {
     protected $cache;
 
     public function __construct() {
-        $this->cache = Cache::getInstance();
+        // Ensure cache is initialized
+        try {
+            $this->cache = Cache::getInstance();
+        } catch (\Exception $e) {
+            error_log('Failed to initialize cache: ' . $e->getMessage());
+            $this->cache = null;
+        }
     }
 
     protected function view($view, $data = []) {
@@ -74,21 +80,24 @@ class Controller {
             return false;
         }
         
-        // Check cache for user data
-        $cachedUser = $this->cache->get('user_' . $_SESSION['user_id']);
-        if ($cachedUser) {
-            // Update last activity
-            $cachedUser['last_activity'] = time();
-            $this->cache->set('user_' . $_SESSION['user_id'], $cachedUser, 3600);
-        } else {
-            // If cache expired, verify from session
-            $this->cache->set('user_' . $_SESSION['user_id'], [
-                'id' => $_SESSION['user_id'],
-                'name' => $_SESSION['user_name'],
-                'role' => $_SESSION['user_role'],
-                'email' => $_SESSION['user_email'] ?? '',
-                'last_activity' => time()
-            ], 3600);
+        // Check if cache is available
+        if ($this->cache !== null) {
+            // Check cache for user data
+            $cachedUser = $this->cache->get('user_' . $_SESSION['user_id']);
+            if ($cachedUser) {
+                // Update last activity
+                $cachedUser['last_activity'] = time();
+                $this->cache->set('user_' . $_SESSION['user_id'], $cachedUser, 3600);
+            } else {
+                // If cache expired, verify from session
+                $this->cache->set('user_' . $_SESSION['user_id'], [
+                    'id' => $_SESSION['user_id'],
+                    'name' => $_SESSION['user_name'],
+                    'role' => $_SESSION['user_role'],
+                    'email' => $_SESSION['user_email'] ?? '',
+                    'last_activity' => time()
+                ], 3600);
+            }
         }
         
         // Check role if specified
