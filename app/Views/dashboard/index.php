@@ -169,7 +169,7 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                                 <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 font-medium">Today</span>
                             </div>
                             <div class="mt-2 flex flex-col">
-                                <div class="text-2xl font-bold text-gray-900">Rp <?php echo $formattedDailySales; ?></div>
+                                <div class="text-2xl font-bold text-gray-900"><?php echo $currencySymbol; ?> <?php echo $formattedDailySales; ?></div>
                                 <div class="text-sm text-gray-600 flex items-center mt-1">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,7 +199,7 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                                 <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 font-medium">MTD</span>
                             </div>
                             <div class="mt-2 flex flex-col">
-                                <div class="text-2xl font-bold text-gray-900">Rp <?php echo $formattedMTDSales; ?></div>
+                                <div class="text-2xl font-bold text-gray-900"><?php echo $currencySymbol; ?> <?php echo $formattedMTDSales; ?></div>
                                 <div class="text-sm text-gray-600 flex items-center mt-1">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,7 +229,7 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                                 <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800 font-medium">YTD</span>
                             </div>
                             <div class="mt-2 flex flex-col">
-                                <div class="text-2xl font-bold text-gray-900">Rp <?php echo $formattedYTDSales; ?></div>
+                                <div class="text-2xl font-bold text-gray-900"><?php echo $currencySymbol; ?> <?php echo $formattedYTDSales; ?></div>
                                 <div class="text-sm text-gray-600 flex items-center mt-1">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -332,7 +332,7 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="text-sm font-bold text-gray-900">Rp <?php echo number_format($order->final_amount, 0, ',', '.'); ?></p>
+                                        <p class="text-sm font-bold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($order->final_amount, 0, ',', '.'); ?></p>
                                         <p class="text-xs text-gray-500 mt-0.5">
                                             <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -385,8 +385,8 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                                         <?php echo $product->stock; ?> units
                                     </span>
                                     </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
-                                        Rp <?php echo number_format($product->price, 0, ',', '.'); ?>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-right">
+                                        <?php echo $currencySymbol; ?> <?php echo number_format($product->price, 0, ',', '.'); ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
