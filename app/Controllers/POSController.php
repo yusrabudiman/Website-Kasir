@@ -21,12 +21,15 @@ class POSController extends Controller {
     public function index() {
         $this->checkAuth(['cashier', 'admin']);
         
-        // Perbaiki cara mengambil tax_rate
+        // Pengambilan data dari database mulai dari Title hingga currency_symbol
         $taxRate = $this->settingModel->getTaxRate() ?? 0;
-        
+        $serviceChargeAmount = $this->settingModel->getServiceCharge() ?? 0;
+        $currencySymbol = $this->settingModel->getCurrencySymbol() ?? 'Rp';
         return $this->view('pos/index', [
             'title' => 'Point of Sale',
             'tax_rate' => $taxRate,
+            'service_charge_amount' => $serviceChargeAmount,
+            'currency_symbol' => $currencySymbol,
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
@@ -167,11 +170,12 @@ class POSController extends Controller {
             // Validate tax and final amounts
             $postedTax = floatval($_POST['tax_amount']);
             $postedFinal = floatval($_POST['final_amount']);
-            $expectedFinal = $postedTotal + $postedTax;
+            $serviceCharge = floatval($_POST['service_charge_amount']);
+            $expectedFinal = $postedTotal + $postedTax + $serviceCharge;
             
             if (abs($expectedFinal - $postedFinal) > $tolerance) {
                 error_log("Final amount mismatch. Expected: " . $expectedFinal . ", Received: " . $postedFinal);
-                return $this->response(['error' => 'Final amount does not match total + tax'], 400);
+                return $this->response(['error' => 'Final amount does not match total + tax + service charge'], 400);
             }
 
             // Validate payment and change
@@ -254,5 +258,11 @@ class POSController extends Controller {
             error_log("Stack trace: " . $e->getTraceAsString());
             return $this->response(['error' => 'Failed to generate receipt'], 500);
         }
+    }
+
+    public function getCurrencySymbol() {
+        // Assuming you have a method to fetch settings
+        $setting = $this->db->query("SELECT currency_symbol FROM store_settings LIMIT 1")->fetch();
+        return $setting ? $setting['currency_symbol'] : null;
     }
 }

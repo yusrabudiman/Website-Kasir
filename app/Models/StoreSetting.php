@@ -27,6 +27,16 @@ class StoreSetting {
         $settings = $this->getSettings();
         return $settings ? (float)$settings->tax_rate : 0;
     }
+
+    public function getServiceCharge() {
+        $settings = $this->getSettings();
+        return $settings ? (float)$settings->service_charge : 0;
+    }
+
+    public function getCurrencySymbol() {
+        $settings = $this->getSettings();
+        return $settings ? $settings->currency_symbol : 'Rp';
+    }
     
     public function save($data, $userId) {
         try {

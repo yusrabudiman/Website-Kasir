@@ -76,15 +76,19 @@
         <div class="border-t border-gray-200 pt-4 space-y-3">
             <div class="flex justify-between text-sm">
                 <span class="text-gray-600">Subtotal:</span>
-                <span class="font-medium" id="subtotal">Rp 0</span>
+                <span class="font-medium" id="subtotal"><?php echo $currency_symbol; ?> 0</span>
             </div>
             <div class="flex justify-between text-sm">
                 <span class="text-gray-600">Tax (<?php echo $tax_rate; ?>%):</span>
-                <span class="font-medium" id="tax">Rp 0</span>
+                <span class="font-medium" id="tax"><?php echo $currency_symbol; ?> 0</span>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Service Charge (<?php echo $service_charge_amount; ?>%):</span>
+                <span class="font-medium" id="serviceCharge"><?php echo $currency_symbol; ?> 0</span>
             </div>
             <div class="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span id="total">Rp 0</span>
+                <span id="total"><?php echo $currency_symbol; ?> 0</span>
             </div>
             
             <!-- Payment Input -->
@@ -92,7 +96,7 @@
                 <label for="payment" class="block text-sm font-medium text-gray-700">Payment Amount</label>
                 <div class="relative rounded-md shadow-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="text-gray-500 sm:text-sm">Rp</span>
+                        <span class="text-gray-500 sm:text-sm"><?php echo $currency_symbol; ?></span>
                     </div>
                     <input type="number" id="payment" name="payment" 
                            class="block w-full pl-12 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -102,7 +106,7 @@
             
             <div class="flex justify-between text-sm">
                 <span class="text-gray-600">Change:</span>
-                <span class="font-medium" id="change">Rp 0</span>
+                <span class="font-medium" id="change"><?php echo $currency_symbol; ?> 0</span>
             </div>
         </div>
 
@@ -158,12 +162,14 @@
 <script>
 // Constants
 const TAX_RATE = <?php echo $tax_rate; ?>;
+const SERVICE_CHARGE_AMOUNT = <?php echo isset($service_charge_amount) ? $service_charge_amount : 0; ?>;
 const CSRF_TOKEN = document.getElementById('csrf_token').value;
 
 // Cart state
 let cart = [];
 let subtotal = 0;
 let tax = 0;
+let serviceCharge = 0;
 let total = 0;
 
 // DOM Elements
@@ -172,6 +178,7 @@ const productGrid = document.getElementById('productGrid');
 const cartItems = document.getElementById('cartItems');
 const subtotalEl = document.getElementById('subtotal');
 const taxEl = document.getElementById('tax');
+const serviceChargeEl = document.getElementById('serviceCharge');
 const totalEl = document.getElementById('total');
 const paymentInput = document.getElementById('payment');
 const changeEl = document.getElementById('change');
@@ -308,7 +315,7 @@ function addToCart(product) {
             code: product.code,
             name: product.name,
             price: product.price,
-            quantity: 1,
+            quantity: product.quantity,
             stock: product.stock
         };
         cart.push(cartItem);
@@ -374,10 +381,12 @@ function removeFromCart(productId) {
 function updateTotals() {
     subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     tax = subtotal * (TAX_RATE / 100);
-    total = subtotal + tax;
+    serviceCharge = subtotal * (SERVICE_CHARGE_AMOUNT / 100);
+    total = subtotal + tax + serviceCharge;
     
     subtotalEl.textContent = formatCurrency(subtotal);
     taxEl.textContent = formatCurrency(tax);
+    serviceChargeEl.textContent = formatCurrency(serviceCharge);
     totalEl.textContent = formatCurrency(total);
     
     calculateChange();
@@ -442,6 +451,7 @@ async function processOrder() {
         console.log('Payment amount:', payment);
         console.log('Total amount:', total);
         console.log('Tax amount:', tax);
+        console.log('Service charge:', serviceCharge);
         console.log('Change amount:', payment - total);
 
         const formData = new FormData();
@@ -449,6 +459,7 @@ async function processOrder() {
         formData.append('items', JSON.stringify(formattedItems));
         formData.append('total_amount', subtotal.toFixed(2));
         formData.append('tax_amount', tax.toFixed(2));
+        formData.append('service_charge_amount', serviceCharge.toFixed(2));
         formData.append('final_amount', total.toFixed(2));
         formData.append('payment_amount', payment.toFixed(2));
         formData.append('change_amount', (payment - total).toFixed(2));
@@ -492,7 +503,7 @@ async function processOrder() {
 }
 
 function formatCurrency(amount) {
-    return `Rp ${amount.toLocaleString('id-ID')}`;
+    return `<?php echo $currency_symbol; ?> ${amount.toLocaleString('id-ID')}`;
 }
 
 function debounce(func, wait) {
