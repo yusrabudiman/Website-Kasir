@@ -7,13 +7,13 @@ class App {
 
     public static function init() {
         self::$config = [
-            'name' => $_ENV['APP_NAME'] ?? 'Website Kasir',
-            'env' => $_ENV['APP_ENV'] ?? 'production',
+            'name' => $settings['app_name'] ?? '',
+            'env' => $_ENV['APP_ENV'] ?? '',
             'debug' => $_ENV['APP_DEBUG'] ?? false,
-            'url' => $_ENV['APP_URL'] ?? 'http://localhost',
-            'timezone' => $_ENV['TIMEZONE'] ?? 'Asia/Jakarta',
-            'locale' => $_ENV['LOCALE'] ?? 'id',
-            'currency' => $_ENV['CURRENCY'] ?? 'IDR',
+            'url' => $_ENV['APP_URL'] ?? '',
+            'timezone' => $_ENV['TIMEZONE'] ?? '',
+            'locale' => $_ENV['LOCALE'] ?? '',
+            'currency' => $_ENV['CURRENCY'] ?? '',
             'session' => [
                 'lifetime' => $_ENV['SESSION_LIFETIME'] ?? 120,
                 'secure' => $_ENV['SESSION_SECURE'] ?? false

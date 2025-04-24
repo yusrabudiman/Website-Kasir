@@ -314,9 +314,9 @@ function addToCart(product) {
             id: product.id,
             code: product.code,
             name: product.name,
-            price: product.price,
-            quantity: product.quantity,
-            stock: product.stock
+            price: parseFloat(product.price),
+            quantity: 1,
+            stock: parseInt(product.stock)
         };
         cart.push(cartItem);
         addCartItemToDOM(cartItem);
@@ -379,7 +379,7 @@ function removeFromCart(productId) {
 }
 
 function updateTotals() {
-    subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    subtotal = cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
     tax = subtotal * (TAX_RATE / 100);
     serviceCharge = subtotal * (SERVICE_CHARGE_AMOUNT / 100);
     total = subtotal + tax + serviceCharge;
@@ -400,6 +400,11 @@ function calculateChange() {
     // Enable/disable process button based on payment
     processOrderBtn.disabled = payment < total;
     processOrderBtn.classList.toggle('opacity-50', payment < total);
+}
+
+function formatCurrency(amount) {
+    if (isNaN(amount)) return `<?php echo $currency_symbol; ?> 0`;
+    return `<?php echo $currency_symbol; ?> ${parseFloat(amount).toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
 function clearCart() {
@@ -500,10 +505,6 @@ async function processOrder() {
     } finally {
         loadingOverlay.classList.add('hidden');
     }
-}
-
-function formatCurrency(amount) {
-    return `<?php echo $currency_symbol; ?> ${amount.toLocaleString('id-ID')}`;
 }
 
 function debounce(func, wait) {

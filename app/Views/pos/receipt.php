@@ -17,16 +17,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            min-height: 120vh;
+            margin: -20px;
             padding: 20px;
             font-family: 'Courier New', monospace;
             font-size: 12px;
-            background-color: #f5f5f5;
+            background-color:rgb(26, 26, 26);
         }
         .receipt-wrapper {
             width: 100%;
-            max-width: 80mm;
+            max-width: 90mm;
             display: flex;
             justify-content: center;
         }
@@ -98,6 +98,7 @@
         }
         @media print {
             html, body {
+              
                 display: block;
                 background-color: white;
                 padding: 0;
@@ -159,7 +160,7 @@
             <table class="border-bottom py-1">
                 <tr>
                     <th class="text-left">Item</th>
-                    <th class="text-right" width="15%">Qty</th>
+                    <th class="text-right" width="15%">Buy</th>
                     <th class="text-right" width="25%">Price</th>
                     <th class="text-right" width="25%">Total</th>
                 </tr>
@@ -172,8 +173,8 @@
                         <?php endif; ?>
                     </td>
                     <td class="text-right"><?php echo $item->quantity; ?></td>
-                    <td class="text-right"><?php echo number_format($item->price, 0, ',', '.'); ?></td>
-                    <td class="text-right"><?php echo number_format($item->subtotal, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($item->price, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($item->subtotal, 0, ',', '.'); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </table>
@@ -182,23 +183,27 @@
             <table class="summary-table py-1">
                 <tr>
                     <td>Subtotal</td>
-                    <td class="text-right"><?php echo number_format($order->total_amount, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($order->total_amount, 0, ',', '.'); ?></td>
                 </tr>
                 <tr>
                     <td>Tax (<?php echo $settings->tax_rate; ?>%)</td>
-                    <td class="text-right"><?php echo number_format($order->tax_amount, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($order->tax_amount, 0, ',', '.'); ?></td>
+                </tr>
+                <tr>
+                    <td>Service Charge (<?php echo $settings->service_charge; ?>%)</td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($order->service_charge, 0, ',', '.'); ?></td>
                 </tr>
                 <tr class="total-row border-top py-1">
                     <td>Total</td>
-                    <td class="text-right"><?php echo number_format($order->final_amount, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($order->final_amount, 0, ',', '.'); ?></td>
                 </tr>
                 <tr>
                     <td>Payment</td>
-                    <td class="text-right"><?php echo number_format($order->payment_amount, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($order->payment_amount, 0, ',', '.'); ?></td>
                 </tr>
                 <tr>
                     <td>Change</td>
-                    <td class="text-right"><?php echo number_format($order->change_amount, 0, ',', '.'); ?></td>
+                    <td class="text-right"><?php echo $currencySymbol; ?><?php echo number_format($order->change_amount, 0, ',', '.'); ?></td>
                 </tr>
             </table>
 

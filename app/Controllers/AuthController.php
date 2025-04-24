@@ -50,14 +50,17 @@ class AuthController extends BaseController {
                 // Regenerate session ID for security
                 session_regenerate_id(true);
                 
-                // Cache user data
+                // Cache user data with longer expiry
                 $this->cache->set('user_' . $user->id, [
                     'id' => $user->id,
                     'name' => $user->name,
                     'role' => $user->role,
                     'email' => $user->email ?? '',
                     'last_activity' => time()
-                ], 3600); // Cache for 1 hour
+                ], 86400); // Cache for 24 hours
+                
+                // Set a persistent cookie for session recovery
+                setcookie('user_id', $user->id, time() + 86400, '/', '', true, true);
                 
                 // Redirect to the intended URL
                 $this->redirect('/dashboard');
@@ -66,6 +69,14 @@ class AuthController extends BaseController {
                     'error' => 'Invalid username or password',
                     'csrf_token' => $this->generateCSRFToken()
                 ]);
+            }
+        }
+
+        // Check for session recovery
+        if (isset($_COOKIE['user_id'])) {
+            $userId = $_COOKIE['user_id'];
+            if ($this->cache->recoverSession($userId)) {
+                $this->redirect('/dashboard');
             }
         }
 
@@ -158,6 +169,9 @@ class AuthController extends BaseController {
         if (isset($_SESSION['user_id'])) {
             $this->cache->delete('user_' . $_SESSION['user_id']);
         }
+        
+        // Clear the persistent cookie
+        setcookie('user_id', '', time() - 3600, '/', '', true, true);
         
         // Destroy all session data
         session_destroy();

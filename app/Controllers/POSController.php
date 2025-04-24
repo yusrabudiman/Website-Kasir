@@ -228,7 +228,7 @@ class POSController extends Controller {
             ], 500);
         }
     }
-
+    //for print receipt struct
     public function printReceipt($orderId) {
         try {
             // Debug log
@@ -244,6 +244,14 @@ class POSController extends Controller {
             // Get store settings
             $settings = $this->settingModel->get();
             
+            // Calculate service charge if not set
+            if (!isset($order->service_charge)) {
+                $order->service_charge = $order->total_amount * ($settings->service_charge / 100);
+            }
+
+            // Get currency symbol
+            $currencySymbol = $this->settingModel->getCurrencySymbol() ?? 'Rp';
+            
             // Debug log
             error_log("Order data: " . print_r($order, true));
             error_log("Settings data: " . print_r($settings, true));
@@ -251,7 +259,8 @@ class POSController extends Controller {
             // Render receipt view
             return $this->view('pos/receipt', [
                 'order' => $order,
-                'settings' => $settings
+                'settings' => $settings,
+                'currencySymbol' => $currencySymbol
             ]);
         } catch (\Exception $e) {
             error_log("Error in printReceipt: " . $e->getMessage());

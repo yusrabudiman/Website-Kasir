@@ -7,7 +7,7 @@ use App\Models\Product; //for top selling products
 use App\Models\StoreSetting; //for currency symbol
 
 class DashboardController extends Controller {
-    private $orderModel;
+    private $orderModel; 
     private $productModel;
     private $settingModel;
 
