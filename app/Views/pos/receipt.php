@@ -236,7 +236,7 @@
             var qr = qrcode(0, 'M');
             qr.addData('<?php echo $order->invoice_number; ?>');
             qr.make();
-            document.getElementById('qrcode').innerHTML = qr.createImgTag(4);
+            document.getElementById('qrcode').innerHTML = qr.createImgTag(6);
             
             // Auto print
             window.print();
