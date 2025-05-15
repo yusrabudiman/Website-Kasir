@@ -139,3 +139,7 @@ This package is needed for:
    npm update
    ```
 
+## More Documentation Pos System
+- [Introduction Website-Kasir (POS System)](https://github.com/yusrabudiman/website-kasir/wiki/Introduction-Website-Kasir-(Point-of-Sale-System))
+- [System Design (POS System)](https://github.com/yusrabudiman/website-kasir/wiki/System-Design-POS-Website-(Point-of-Sale-System))
+- [Website Kasir (POS System) View Documentation](https://github.com/yusrabudiman/website-kasir/wiki/Website-Kasir-(Point-of-Sale-System)-View-Documentation)
