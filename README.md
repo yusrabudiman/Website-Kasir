@@ -74,7 +74,7 @@ nano .env
 php -S localhost:8000
 
 # If using Apache or Nginx, configure your virtual host to point to the project's root directory
-# If using Xampp Control Panel, can you click start Apache and MySQL for run frontend and server
+# If using Xampp Control Panel, you can click start Apache and MySQL for run frontend and server
 ```
 
 ## Development
