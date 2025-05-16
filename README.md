@@ -8,12 +8,13 @@ A PHP-based Point of Sale system with inventory management, user authentication,
 - MySQL 5.7 or higher
 - Composer
 - Node.js and npm (for frontend assets)
-
+- Xampp Control Panel
 ## Installation
 
 ### 1. Clone the repository
 
 ```bash
+htdocs
 git clone https://github.com/yusrabudiman/website-kasir.git
 cd website-kasir
 ```
@@ -73,6 +74,7 @@ nano .env
 php -S localhost:8000
 
 # If using Apache or Nginx, configure your virtual host to point to the project's root directory
+# If using Xampp Control Panel, can you click start Apache and MySQL for run frontend and server
 ```
 
 ## Development
