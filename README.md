@@ -1,6 +1,6 @@
-# POS System
+# Website Kasir
 
-A PHP-based Point of Sale system with inventory management, user authentication, and sales tracking.
+Website Kasir is A POS System PHP-based Point of Sale system with inventory management, user authentication, and sales tracking.
 
 ## System Requirements
 
