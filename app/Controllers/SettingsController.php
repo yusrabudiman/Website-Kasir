@@ -4,13 +4,16 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\StoreSetting;
 use Ramsey\Uuid\Uuid;
+use App\Helpers\StoreHelper;
 
 class SettingsController extends Controller {
     private $settingsModel;
+    private $storeHelper;
 
     public function __construct() {
         parent::__construct();
         $this->settingsModel = new StoreSetting();
+        $this->storeHelper = StoreHelper::getInstance();
     }
 
     public function index() {
@@ -78,6 +81,9 @@ class SettingsController extends Controller {
             $result = $this->settingsModel->save($data, $userId);
             
             if ($result) {
+                // Refresh store settings after successful update
+                $this->storeHelper->refresh();
+                
                 $this->logActivity('Store settings updated');
                 $_SESSION['flash_message'] = 'Settings updated successfully';
                 $_SESSION['flash_type'] = 'success';

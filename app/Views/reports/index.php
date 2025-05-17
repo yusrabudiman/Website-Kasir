@@ -112,14 +112,14 @@
             <!-- Today's Sales -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg px-4 py-5">
                 <dt class="text-sm font-medium text-gray-500 truncate">Today's Sales</dt>
-                <dd class="mt-1 text-3xl font-semibold text-gray-900"><?php echo isset($stats->today_sales) ? 'Rp ' . number_format($stats->today_sales) : 'Rp 0'; ?></dd>
+                <dd class="mt-1 text-3xl font-semibold text-gray-900"><?php echo isset($stats->today_sales) ? $currencySymbol . ' ' . number_format($stats->today_sales) : $currencySymbol . ' 0'; ?></dd>
                 <dd class="mt-1 text-sm text-gray-500"><?php echo isset($stats->today_orders) ? $stats->today_orders . ' orders' : '0 orders'; ?></dd>
             </div>
 
             <!-- This Month -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg px-4 py-5">
                 <dt class="text-sm font-medium text-gray-500 truncate">This Month</dt>
-                <dd class="mt-1 text-3xl font-semibold text-gray-900"><?php echo isset($stats->month_sales) ? 'Rp ' . number_format($stats->month_sales) : 'Rp 0'; ?></dd>
+                <dd class="mt-1 text-3xl font-semibold text-gray-900"><?php echo isset($stats->month_sales) ? $currencySymbol . ' ' . number_format($stats->month_sales) : $currencySymbol . ' 0'; ?></dd>
                 <dd class="mt-1 text-sm text-gray-500"><?php echo isset($stats->month_orders) ? $stats->month_orders . ' orders' : '0 orders'; ?></dd>
             </div>
 

@@ -64,7 +64,7 @@
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                                Rp <?php echo number_format($product->price, 0, ',', '.'); ?>
+                                <?php echo $currencySymbol; ?> <?php echo number_format($product->price, 0, ',', '.'); ?>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
                                 <span class="<?php echo $product->stock <= 10 ? 'text-red-600 font-semibold' : 'text-gray-900'; ?>">
@@ -205,7 +205,7 @@ function updateProductsTable(products) {
                 ${product.description ? `<div class="text-sm text-gray-500">${escapeHtml(product.description)}</div>` : ''}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                Rp ${numberFormat(product.price)}
+                <?php echo $currencySymbol; ?> ${numberFormat(product.price)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
                 <span class="${product.stock <= 10 ? 'text-red-600 font-semibold' : 'text-gray-900'}">

@@ -3,13 +3,18 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Models\Product;
+use App\Models\StoreSetting;
+use App\Helpers\StoreHelper;
 use Ramsey\Uuid\Uuid;
 
 class ProductController extends Controller {
     private $productModel;
+    private $storeHelper;
 
     public function __construct() {
+        parent::__construct();
         $this->productModel = $this->model('Product');
+        $this->storeHelper = StoreHelper::getInstance();
     }
 
     public function index() {
@@ -17,6 +22,7 @@ class ProductController extends Controller {
         return $this->view('products/index', [
             'title' => 'Products',
             'products' => $products,
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol(),
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
@@ -62,6 +68,7 @@ class ProductController extends Controller {
 
         return $this->view('products/create', [
             'title' => 'Create Product',
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol(),
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
@@ -108,6 +115,7 @@ class ProductController extends Controller {
         return $this->view('products/edit', [
             'title' => 'Edit Product',
             'product' => $product,
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol(),
             'csrf_token' => $this->generateCSRFToken()
         ]);
     }
@@ -155,7 +163,8 @@ class ProductController extends Controller {
             
             $response = [
                 'success' => true,
-                'products' => $products
+                'products' => $products,
+                'currencySymbol' => $this->storeHelper->getCurrencySymbol()
             ];
             
             // Debug log

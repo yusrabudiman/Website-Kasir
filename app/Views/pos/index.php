@@ -11,12 +11,17 @@
 </head>
 
 <!-- Back to Dashboard Button -->
-<div class="p-4 flex justify-end">
-    <input type="hidden" id="csrf_token" value="<?php echo $csrf_token; ?>">
-    <a href="/dashboard" class="inline-flex items-center text-gray-700 hover:text-indigo-600">
-        <i class="fas fa-arrow-left mr-2"></i>
-        Back to Dashboard
-    </a>
+<div class="p-4 flex justify-between items-center">
+    <div class="flex items-center">
+        <span class="text-indigo-600 text-xl font-bold"><?php echo $storeName ?? 'POS System'; ?></span>
+    </div>
+    <div>
+        <input type="hidden" id="csrf_token" value="<?php echo $csrf_token; ?>">
+        <a href="/dashboard" class="inline-flex items-center text-gray-700 hover:text-indigo-600">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Dashboard
+        </a>
+    </div>
 </div>
 
 <div class="flex h-[calc(100vh-4rem)] gap-6">

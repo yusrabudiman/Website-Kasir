@@ -21,12 +21,18 @@ class POSController extends Controller {
     public function index() {
         $this->checkAuth(['cashier', 'admin']);
         
-        // Pengambilan data dari database mulai dari Title hingga currency_symbol
+        // Get store settings
+        $settings = $this->settingModel->getSettings();
+        $storeName = $settings ? $settings->store_name : 'POS System';
+        
+        // Get other settings
         $taxRate = $this->settingModel->getTaxRate() ?? 0;
         $serviceChargeAmount = $this->settingModel->getServiceCharge() ?? 0;
         $currencySymbol = $this->settingModel->getCurrencySymbol() ?? 'Rp';
+        
         return $this->view('pos/index', [
             'title' => 'Point of Sale',
+            'storeName' => $storeName,
             'tax_rate' => $taxRate,
             'service_charge_amount' => $serviceChargeAmount,
             'currency_symbol' => $currencySymbol,

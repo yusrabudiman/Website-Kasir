@@ -6,17 +6,20 @@ use App\Core\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\StockMutation;
+use App\Helpers\StoreHelper;
 
 class ReportController extends Controller {
     private $order;
     private $product;
     private $stockMutation;
+    private $storeHelper;
 
     public function __construct() {
         parent::__construct();
         $this->order = new Order();
         $this->product = new Product();
         $this->stockMutation = new StockMutation();
+        $this->storeHelper = StoreHelper::getInstance();
     }
 
     public function index() {
@@ -43,7 +46,10 @@ class ReportController extends Controller {
             'total_products' => $inventoryStats->total_products ?? 0
         ];
         
-        return $this->view('reports/index', ['stats' => $stats]);
+        return $this->view('reports/index', [
+            'stats' => $stats,
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol()
+        ]);
     }
 
     public function sales() {
@@ -67,7 +73,8 @@ class ReportController extends Controller {
             'summary' => $summary,
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'group_by' => $groupBy
+            'group_by' => $groupBy,
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol()
         ]);
     }
 
@@ -90,7 +97,8 @@ class ReportController extends Controller {
             'summary' => $summary,
             'stock_status' => $stockStatus,
             'sort_by' => $sortBy,
-            'order' => $order
+            'order' => $order,
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol()
         ]);
     }
 
@@ -109,11 +117,12 @@ class ReportController extends Controller {
         }
 
         return $this->view('reports/financial', [
-            'sales_data' => $salesData,
+            'salesData' => $salesData,
             'summary' => $summary,
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'group_by' => $groupBy
+            'group_by' => $groupBy,
+            'currencySymbol' => $this->storeHelper->getCurrencySymbol()
         ]);
     }
 

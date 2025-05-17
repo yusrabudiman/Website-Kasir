@@ -4,6 +4,7 @@ namespace App\Core;
 use Ramsey\Uuid\Uuid;
 use App\Models\AuditLog;
 use App\Core\Cache;
+use App\Helpers\StoreHelper;
 
 class Controller {
     protected $cache;
@@ -19,8 +20,31 @@ class Controller {
     }
 
     protected function view($view, $data = []) {
+        // Get store helper instance
+        $storeHelper = StoreHelper::getInstance();
+        
+        // Add store settings to all views
+        $data['storeName'] = $storeHelper->getStoreName();
+        $data['currencySymbol'] = $storeHelper->getCurrencySymbol();
+        
+        // Extract data to make variables available in view
         extract($data);
-        require_once __DIR__ . "/../../app/Views/{$view}.php";
+        
+        // Start output buffering
+        ob_start();
+        
+        // Include the view file
+        require_once __DIR__ . "/../Views/{$view}.php";
+        
+        // Get the contents of the buffer
+        $content = ob_get_clean();
+        
+        // Include the layout if it exists
+        if (file_exists(__DIR__ . "/../Views/layouts/main.php")) {
+            require_once __DIR__ . "/../Views/layouts/main.php";
+        } else {
+            echo $content;
+        }
     }
 
     protected function model($model) {

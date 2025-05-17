@@ -62,19 +62,19 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Gross Sales</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->gross_sales); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->gross_sales); ?></dd>
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Tax Amount</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->tax_amount); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->tax_amount); ?></dd>
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Net Sales</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->net_sales); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->net_sales); ?></dd>
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Average Daily Sales</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->average_daily); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->average_daily); ?></dd>
         </div>
     </div>
 
@@ -107,7 +107,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <?php foreach ($sales_data as $row): ?>
+                    <?php foreach ($salesData as $row): ?>
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <?php echo $row->date; ?>
@@ -116,13 +116,13 @@
                             <?php echo number_format($row->orders); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                            Rp <?php echo number_format($row->gross_sales); ?>
+                            <?php echo $currencySymbol; ?> <?php echo number_format($row->gross_sales); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                            Rp <?php echo number_format($row->tax_amount); ?>
+                            <?php echo $currencySymbol; ?> <?php echo number_format($row->tax_amount); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                            Rp <?php echo number_format($row->net_sales); ?>
+                            <?php echo $currencySymbol; ?> <?php echo number_format($row->net_sales); ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -136,7 +136,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Sales Trend Chart
-    const salesData = <?php echo json_encode($sales_data); ?>;
+    const salesData = <?php echo json_encode($salesData); ?>;
     const labels = salesData.map(item => item.date);
     const grossSales = salesData.map(item => item.gross_sales);
     const netSales = salesData.map(item => item.net_sales);
@@ -147,13 +147,13 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Gross Sales',
+                label: 'Gross Sales (<?php echo $currencySymbol;?>)',
                 data: grossSales,
                 borderColor: 'rgb(79, 70, 229)',
                 backgroundColor: 'rgba(79, 70, 229, 0.1)',
                 fill: true
             }, {
-                label: 'Net Sales',
+                label: 'Net Sales (<?php echo $currencySymbol;?>)',
                 data: netSales,
                 borderColor: 'rgb(16, 185, 129)',
                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Amount (Rp)'
+                        text: 'Amount (<?php echo $currencySymbol; ?>)'
                     }
                 }
             }
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctx2, {
         type: 'pie',
         data: {
-            labels: ['Net Sales', 'Tax'],
+            labels: ['Net Sales (<?php echo $currencySymbol;?>)', 'Tax (<?php echo $currencySymbol;?>)'],
             datasets: [{
                 data: [summary.netSales, summary.taxAmount],
                 backgroundColor: [

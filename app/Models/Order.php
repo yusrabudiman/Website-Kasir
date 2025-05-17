@@ -157,7 +157,7 @@ class Order {
         switch ($groupBy) {
             case 'weekly':
                 $dateFormat = "YEARWEEK(created_at, 1)";
-                $selectDate = "CONCAT('Week ', WEEK(created_at, 1), ', ', YEAR(created_at)) as date";
+                $selectDate = "CONCAT('Week ', WEEK(created_at, 1), ' (', DATE_FORMAT(MIN(created_at), '%d %b'), ' - ', DATE_FORMAT(MAX(created_at), '%d %b %Y'), ')') as date";
                 break;
             case 'monthly':
                 $dateFormat = "DATE_FORMAT(created_at, '%Y-%m')";
@@ -165,7 +165,7 @@ class Order {
                 break;
             default: // daily
                 $dateFormat = "DATE(created_at)";
-                $selectDate = "DATE(created_at) as date";
+                $selectDate = "DATE_FORMAT(created_at, '%d %b %Y') as date";
                 break;
         }
 

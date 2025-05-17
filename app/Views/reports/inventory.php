@@ -72,7 +72,7 @@
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Total Stock Value</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->total_value); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->total_value); ?></dd>
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Low Stock Items</dt>
@@ -121,10 +121,10 @@
                             <?php echo number_format($item->min_stock); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                            Rp <?php echo number_format($item->price); ?>
+                            <?php echo $currencySymbol; ?>   <?php echo number_format($item->price); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                            Rp <?php echo number_format($item->stock * $item->price); ?>
+                            <?php echo $currencySymbol; ?>   <?php echo number_format($item->stock * $item->price); ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <?php

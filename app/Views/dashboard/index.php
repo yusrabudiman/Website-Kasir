@@ -23,7 +23,7 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                 <!-- Logo and Brand -->
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <span class="text-indigo-600 text-xl font-bold"><?php echo $_ENV['APP_NAME'] ?? 'POS System'; ?></span>
+                        <span class="text-indigo-600 text-xl font-bold"><?php echo $storeName ?? 'POS System'; ?></span>
                     </div>
                 </div>
                 

@@ -10,11 +10,14 @@ class DashboardController extends Controller {
     private $orderModel; 
     private $productModel;
     private $settingModel;
+    private $storeName;
 
     public function __construct() {
         $this->orderModel = $this->model('Order');
         $this->productModel = $this->model('Product');
         $this->settingModel = $this->model('StoreSetting');
+        $settings = $this->settingModel->getSettings();
+        $this->storeName = $settings ? $settings->store_name : '';
     }
 
     public function index() {
@@ -39,6 +42,10 @@ class DashboardController extends Controller {
         // Get currency symbol
         $currencySymbol = $this->settingModel->getCurrencySymbol();
 
+        // Get store settings
+        $settings = $this->settingModel->getSettings();
+        $storeName = $settings ? $settings->store_name : '';
+
         return $this->view('dashboard/index', [
             'title' => 'Dashboard',
             'dailySales' => $dailySales,
@@ -47,7 +54,8 @@ class DashboardController extends Controller {
             'topProducts' => $topProducts,
             'recentOrders' => $recentOrders,
             'lowStockProducts' => $lowStockProducts,
-            'currencySymbol' => $currencySymbol
+            'currencySymbol' => $currencySymbol,
+            'storeName' => $storeName
         ]);
     }
 }

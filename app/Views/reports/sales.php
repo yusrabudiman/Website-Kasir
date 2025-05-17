@@ -62,7 +62,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Total Sales</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->total_sales); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->total_sales); ?></dd>
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Total Orders</dt>
@@ -70,7 +70,7 @@
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Average Order Value</dt>
-            <dd class="mt-1 text-2xl font-semibold text-gray-900">Rp <?php echo number_format($summary->average_order); ?></dd>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($summary->average_order); ?></dd>
         </div>
         <div class="bg-white rounded-lg shadow-sm px-4 py-5">
             <dt class="text-sm font-medium text-gray-500">Total Items Sold</dt>
@@ -101,7 +101,7 @@
                                 <p class="text-sm text-gray-500"><?php echo $product->quantity_sold; ?> units sold</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-gray-900">Rp <?php echo number_format($product->total_sales); ?></p>
+                                <p class="text-sm font-medium text-gray-900"><?php echo $currencySymbol; ?> <?php echo number_format($product->total_sales); ?></p>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -139,7 +139,7 @@
                                     <?php echo number_format($row->items_sold); ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                                    Rp <?php echo number_format($row->total_sales); ?>
+                                    <?php echo $currencySymbol; ?> <?php echo number_format($row->total_sales); ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Sales (Rp)',
+                label: 'Sales (<?php echo $currencySymbol; ?>)',
                 data: sales,
                 borderColor: 'rgb(79, 70, 229)',
                 backgroundColor: 'rgba(79, 70, 229, 0.1)',
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Sales (Rp)'
+                        text: 'Sales (<?php echo $currencySymbol; ?>)'
                     }
                 },
                 orders: {
