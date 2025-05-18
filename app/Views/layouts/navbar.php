@@ -28,6 +28,9 @@
                 <a href="/reports" class="px-3 py-2 rounded-md text-sm font-medium <?php echo basename($_SERVER['REQUEST_URI']) == 'reports' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'; ?>">
                     Reports
                 </a>
+                <a href="/stock" class="px-3 py-2 rounded-md text-sm font-medium <?php echo basename($_SERVER['REQUEST_URI']) == 'stock' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'; ?>">
+                    Stock
+                </a>
                 
                 <a href="/audit" class="px-3 py-2 rounded-md text-sm font-medium <?php echo basename($_SERVER['REQUEST_URI']) == 'audit' ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50'; ?>">
                     Audit Trail

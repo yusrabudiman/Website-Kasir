@@ -40,16 +40,19 @@ class StockMutation {
                 ':created_by' => $data['created_by']
             ];
 
-            $stmt = $this->db->prepare($query);
-            $stmt->execute($params);
+            // Prepare and execute the stock mutation query
+            $this->db->query($query);
+            foreach ($params as $key => $value) {
+                $this->db->bind($key, $value);
+            }
+            $this->db->execute();
 
             // Update product stock
             $updateQuery = "UPDATE products SET stock = :after_stock WHERE id = :product_id";
-            $updateStmt = $this->db->prepare($updateQuery);
-            $updateStmt->execute([
-                ':after_stock' => $data['after_stock'],
-                ':product_id' => $data['product_id']
-            ]);
+            $this->db->query($updateQuery)
+                ->bind(':after_stock', $data['after_stock'])
+                ->bind(':product_id', $data['product_id'])
+                ->execute();
 
             $this->db->commit();
             return true;
@@ -73,48 +76,42 @@ class StockMutation {
         ORDER BY sm.created_at DESC
         LIMIT :limit";
 
-        $stmt = $this->db->prepare($query);
-        $stmt->bindValue(':product_id', $productId, PDO::PARAM_STR);
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        $this->db->query($query);
+        $this->db->bind(':product_id', $productId);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        return $this->db->resultSet();
     }
 
     public function getMutationsByDate($startDate, $endDate, $type = null) {
-        $query = "SELECT 
-            sm.*,
-            u.name as created_by_name,
-            p.name as product_name,
-            p.code as product_code
-        FROM stock_mutations sm
-        JOIN users u ON sm.created_by = u.id
-        JOIN products p ON sm.product_id = p.id
-        WHERE DATE(sm.created_at) BETWEEN :start_date AND :end_date";
-
-        $params = [
-            ':start_date' => $startDate,
-            ':end_date' => $endDate
-        ];
+        $query = "SELECT sm.*, p.name as product_name, p.code as product_code, p.stock as current_stock, 
+                 u.name as created_by_name
+                 FROM stock_mutations sm 
+                 LEFT JOIN products p ON sm.product_id = p.id 
+                 LEFT JOIN users u ON sm.created_by = u.id 
+                 WHERE DATE(sm.created_at) BETWEEN :start_date AND :end_date";
 
         if ($type) {
             $query .= " AND sm.type = :type";
-            $params[':type'] = $type;
         }
 
         $query .= " ORDER BY sm.created_at DESC";
 
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
+        $this->db->query($query);
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        if ($type) {
+            $this->db->bind(':type', $type);
+        }
 
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $this->db->resultSet();
     }
 
     public function validateStockChange($productId, $quantity, $type) {
         $query = "SELECT stock FROM products WHERE id = :product_id";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute([':product_id' => $productId]);
-        $product = $stmt->fetch(PDO::FETCH_OBJ);
+        $this->db->query($query);
+        $this->db->bind(':product_id', $productId);
+        $product = $this->db->single();
 
         if (!$product) {
             throw new \Exception('Product not found');

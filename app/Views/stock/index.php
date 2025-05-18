@@ -1,7 +1,25 @@
-<div class="container mx-auto px-6 py-8">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $_ENV['APP_NAME']; ?></title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+<?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
+
+<div class="container mx-auto px-6 py-8 pt-24">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">Stock Management</h1>
         <div class="space-x-2">
+            <a href="/stock/mutations" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-history mr-2"></i> History Mutations
+            </a>
             <a href="/stock/adjust" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
                 <i class="fas fa-plus mr-2"></i> Adjust Stock
             </a>

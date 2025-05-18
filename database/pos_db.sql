@@ -349,6 +349,32 @@ ALTER TABLE `store_settings`
   ADD CONSTRAINT `store_settings_ibfk_2` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 COMMIT;
 
+--
+-- Table structure for table `stock_mutations`
+--
+
+CREATE TABLE `stock_mutations` (
+  `id` varchar(36) NOT NULL,
+  `product_id` varchar(36) NOT NULL,
+  `type` enum('purchase','sale','adjustment','return') NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `before_stock` int(11) NOT NULL,
+  `after_stock` int(11) NOT NULL,
+  `reference_id` varchar(36) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_by` varchar(36) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `stock_mutations_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  CONSTRAINT `stock_mutations_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stock_mutations`
+--
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

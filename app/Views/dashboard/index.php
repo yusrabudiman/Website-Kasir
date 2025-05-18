@@ -47,6 +47,8 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                         <a href="reports" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50">
                             Reports
                         </a>
+
+                   
                         
                         <div class="relative inline-block text-left">
                             <button type="button" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none" id="menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
@@ -58,6 +60,9 @@ $formattedYTDSales = number_format($ytdSales->total_sales, 0, ',', '.');
                             
                             <div class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50" id="dropdown-menu" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                                 <div class="py-1" role="none">
+                                    <a href="stock" class="text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 block px-4 py-2 text-sm" role="menuitem" tabindex="-1">
+                                        Stock
+                                    </a>
                                     <a href="settings" class="text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 block px-4 py-2 text-sm" role="menuitem" tabindex="-1">
                                         Settings
                                     </a>

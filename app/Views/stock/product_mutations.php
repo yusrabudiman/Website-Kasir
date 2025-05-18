@@ -1,3 +1,7 @@
+<?php
+$title = 'Product Stock Mutations';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,13 +18,16 @@
 <?php include_once __DIR__ . '/../layouts/navbar.php'; ?>
 
 <div class="container mx-auto px-6 py-8 pt-24">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <h1 class="text-2xl font-semibold text-gray-900">Stock Mutations History</h1>
-        <div class="flex items-center gap-3">
-            <a href="/stock" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Stock Mutations for <?php echo htmlspecialchars($product->name); ?></h1>
+            <p class="mt-1 text-sm text-gray-500">Product Code: <?php echo htmlspecialchars($product->code); ?></p>
+        </div>
+        <div class="space-x-2">
+            <a href="/stock" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 <i class="fas fa-arrow-left mr-2"></i> Back to Stock
             </a>
-            <button onclick="exportToExcel()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+            <button onclick="exportToExcel()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 <i class="fas fa-file-excel mr-2"></i> Export to Excel
             </button>
         </div>
@@ -41,17 +48,6 @@
                        value="<?php echo $end_date; ?>"
                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
             </div>
-            <div class="flex-1 min-w-[200px]">
-                <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-                <select id="type" name="type"
-                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md">
-                    <option value="">All Types</option>
-                    <option value="sale" <?php echo $type === 'sale' ? 'selected' : ''; ?>>Sale</option>
-                    <option value="purchase" <?php echo $type === 'purchase' ? 'selected' : ''; ?>>Purchase</option>
-                    <option value="adjustment" <?php echo $type === 'adjustment' ? 'selected' : ''; ?>>Adjustment</option>
-                    <option value="return" <?php echo $type === 'return' ? 'selected' : ''; ?>>Return</option>
-                </select>
-            </div>
             <div>
                 <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
                     <i class="fas fa-filter mr-2"></i> Apply Filters
@@ -67,7 +63,6 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Time</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Before</th>
@@ -81,14 +76,6 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <?php echo date('Y-m-d H:i', strtotime($mutation->created_at)); ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">
-                                <?php echo htmlspecialchars($mutation->product_name); ?>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                <?php echo htmlspecialchars($mutation->product_code); ?>
-                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <?php
@@ -131,12 +118,12 @@
 function exportToExcel() {
     const form = document.getElementById('filterForm');
     const params = new URLSearchParams(new FormData(form));
-    window.location.href = `/stock/export?${params.toString()}`;
+    window.location.href = `/stock/export?${params.toString()}&product_id=<?php echo $product->id; ?>`;
 }
 
 document.getElementById('filterForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const params = new URLSearchParams(new FormData(this));
-    window.location.href = `/stock/mutations?${params.toString()}`;
+    window.location.href = `/stock/mutations/<?php echo $product->id; ?>?${params.toString()}`;
 });
-</script>
+</script> 

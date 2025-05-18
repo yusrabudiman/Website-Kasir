@@ -34,7 +34,7 @@ class StockController extends Controller {
 
         if ($productId) {
             $mutations = $this->stockMutation->getProductMutations($productId);
-            $product = $this->product->getById($productId);
+            $product = $this->product->findById($productId);
             
             return $this->view('stock/product_mutations', [
                 'mutations' => $mutations,
